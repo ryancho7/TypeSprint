@@ -24,6 +24,7 @@ Given these motivations, we're excited to build this application because it's te
 
 ## Data Flow
 
+![Data flow Diagram](./diagrams/dataflow.png)
 
 ## Summary Tables for User Stories
 
