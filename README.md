@@ -44,32 +44,54 @@ Given these motivations, we're excited to build this application because it's te
 ## API Endpoints:
 
 ### Auth
-- POST /api/auth/login    Log in (via Azure), establish session
-- POST /api/auth/logout   Log out and destroy session	
-- GET	/api/auth/me    Get current user’s profile
+- POST /api/auth/login - Log in (via Azure), establish session
+- POST /api/auth/logout- Log out and destroy session	
+- GET	/api/auth/me - Get current user’s profile
 
-### Sentences
-- GET	/api/sentences/random	Return one random sentence for typing practice
-- GET	/api/sentences  List all sentences in DB for user to choose from
-- POST /api/sentences  Add a new sentence
+### Text
+- GET	/api/text/random - Return one random text for typing practice
+- GET	/api/text - List all texts in DB for user to choose from
+- POST /api/text - Add a new text
 
 ### Matchmaking
-- POST /api/lobbies/join	Join an open lobby or create one; returns lobbyId
-- GET /api/lobbies/:lobbyId	View lobby status (players joined, isReady flag)
+- POST /api/lobbies/join - Join an open lobby or create one; returns lobbyId
+- GET /api/lobbies/:lobbyId	- View lobby status (players joined, isReady flag)
 
 ### In Game
-- POST /api/games/:lobbyId/start	Start the race for all players in the lobby
-- GET	/api/games/:gameId	Get game metadata (sentence, players, start time)
-- POST /api/games/:gameId/finish	Submit finish time, accuracy, wpm, etc for the current user
-- GET	/api/games/:gameId/results	Get final standings and stats for this game
+- POST /api/games/:lobbyId/start - Start the race for all players in the lobby
+- GET	/api/games/:gameId - Get game metadata (sentence, players, start time)
+- POST /api/games/:gameId/finish - Submit finish time, accuracy, wpm, etc for the current user
+- GET	/api/games/:gameId/results - Get final standings and stats for this game
 
 ### User Profile
-- GET	/api/users/:userId/history	Get this user's game history (wpm, accuracy, date, etc)
+- GET	/api/users/:userId/history - Get this user's game history (wpm, accuracy, date, etc)
 
 ### Leaderboard
-- GET	/api/leaderboard/ Top N all-time fastest races
-- GET	/api/stats/:userId/summary  stats for user (avg WPM, total races, avg accuracy, etc)
+- GET	/api/leaderboard/ - Top N all-time fastest races
+- GET	/api/stats/:userId/summary - Stats for user (avg WPM, total races, avg accuracy, etc)
 
 ## Database Schemas:
 
- 
+### User
+- username (String)
+- userId (String)
+
+### Text
+- text (String)
+
+### Lobby
+- players ([ref User])
+- isReady (Boolean)
+- created (Date)
+
+### Game
+- lobby (ref Lobby)
+- text (ref Text)
+- start (Date)
+- end (Date)
+- results ({ user (ref User), finishTime (Date), wpm (Number), accuracy (Number) })
+  
+### Leaderboard
+- user (ref User)
+- wpm (Number)
+- lastUpdated (Date)
