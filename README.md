@@ -20,7 +20,7 @@ Given these motivations, we're excited to build this application because it's te
 # Technical Description
 
 ## Architectural Diagrams
-
+![Architectural Diagrams](./diagrams/architectural_diagrams.png)
 
 ## Data Flow
 
