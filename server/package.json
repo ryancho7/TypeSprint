@@ -9,8 +9,12 @@
   "dependencies": {
     "cookie-parser": "^1.0.0",
     "debug": "~2.6.9",
+    "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "http-proxy-middleware": "^3.0.5",
-    "morgan": "~1.9.1"
+    "mongoose": "^8.15.0",
+    "morgan": "~1.9.1",
+    "msal-node-wrapper": "https://gitpkg.now.sh/kylethayer/ms-identity-javascript-nodejs-tutorial-msal-node-v2-/Common/msal-node-wrapper?main"
   }
 }
