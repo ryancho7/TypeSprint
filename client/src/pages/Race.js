@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Race() {
 
-    const sampleText = "The quick brown fox jumps over the lazy dog, but only after sipping some cold lemonade under the blazing summer sun.";
+    const navigate = useNavigate();
+
+    const sampleText = "Test run"
+    // const sampleText = "The quick brown fox jumps over the lazy dog, but only after sipping some cold lemonade under the blazing summer sun.";
     const textArray = sampleText.split(" ");
 
     const [ currentInput, setCurrentInput ] = useState("");
@@ -10,6 +14,7 @@ export default function Race() {
     const [ status, setStatus ] = useState("waiting");
     const [ error, setError ] = useState(false);
     const [startTime, setStartTime] = useState(null);
+    const [ carPosition, setCarPosition ] = useState(0);
 
 
     const handleInputChange = (e) => {
@@ -26,6 +31,7 @@ export default function Race() {
             if(currWord !== textArray[currentWordIndex]) {
                 setError(true);
             } else {
+                setCarPosition(carPosition+1);
                 setCurrentWordIndex(currentWordIndex+1);
                 setCurrentInput("");
                 setError(false);
@@ -51,15 +57,23 @@ export default function Race() {
 
 
     return (
-        <div className="flex flex-col gap-[200px] justify-center items-center bg-[#1E1E1E] min-h-screen">
+        <div className="flex flex-col gap-[100px] justify-center items-center bg-[#1E1E1E] min-h-screen w-full">
             <h1 className="text-xl">Race Screen</h1>
+            <div className="w-[80%]">
+                <p
+                    className="text-white transition-all duration-1000 bg-slate-500"
+                    style={{ marginLeft: `${(carPosition / textArray.length) * 100}%` }}
+                >
+                    🏎️
+                </p>
+            </div>
             <div>
                 {textArray.map((word, index) => {
                     let className = "px-1";
                     if(index === currentWordIndex) {
                         className += " text-white underline";
                         if(error) {
-                            className += " text-red-500"
+                            className = "underline text-red-500"
                         }
                     } else if(index < currentWordIndex) {
                         className += " text-green-400";
@@ -82,7 +96,22 @@ export default function Race() {
                 placeholder="Start typing here"
             />
             {status === "finished" && (
-                <p className="text-white">Final WPM: {calculateWPM()}</p>
+                <div>
+                    <h1 className="text-white">Finished!</h1>
+                    <p className="text-white">Final WPM: {calculateWPM()}</p>
+                    <button 
+                        className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
+                        onClick={() => window.location.reload()}
+                    >
+                        Race Again
+                    </button>
+                    <button 
+                        className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
+                        onClick={() => navigate('/dashboard')}
+                    >
+                        Go to Dashboard
+                    </button>
+                </div>                
             )}
         </div>
     )

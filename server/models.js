@@ -9,4 +9,10 @@ console.log("Successfully connected to mongodb");
 
 const models = {}
 
+const sentenceSchema = new mongoose.Schema({
+    sentence: String
+});
+
+models.Sentence = mongoose.model('Sentence', sentenceSchema);
+
 export default models
