@@ -16,7 +16,7 @@ export default function Dashboard() {
                 </a>
                 <button 
                     className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
-                    onClick={() => navigate('/Race')}
+                    onClick={() => navigate('/race')}
                 >
                     Go To Race
                 </button>
