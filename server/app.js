@@ -43,29 +43,27 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 
-// auth
+// ** AUTH **
+// SESSION
 const oneDay = 1000 * 60 * 60 * 24
 app.use(sessions({
     secret: process.env.SESSION_SECRET,
     saveUninitialized: true,
-    cookie: {maxAge: oneDay},
+    cookie: { maxAge: oneDay },
     resave: false
 }));
+
+// Initialize MSAL
 const authProvider = await WebAppAuthProvider.WebAppAuthProvider.initialize(authConfig);
+
 app.use(authProvider.authenticate());
+app.use(authProvider.interactionErrorHandler());
 
-app.use('/api', apiRouter);
-
-app.use((req, res, next) => {
-    req.models = models
-    next();
-});
-
+// auth endpoints
 app.get('/signin', (req, res, next) => {
     return req.authContext.login({
-        postLoginRedirectUri: "/dashboard", // redirect here after login
+        postLoginRedirectUri: "/", // redirect here after login
     })(req, res, next);
 });
 
@@ -74,9 +72,18 @@ app.get('/signout', (req, res, next) => {
         postLogoutRedirectUri: "/", // redirect here after logout
     })(req, res, next);
 });
+// ** END AUTH **
 
-app.use(authProvider.interactionErrorHandler());
+// API
+app.use('/api', apiRouter);
 
+// Models
+app.use((req, res, next) => {
+    req.models = models
+    next();
+});
+
+// PROXY
 app.use('/*', createProxyMiddleware({
     // for windows
     // target: 'http://127.0.0.1:4000',

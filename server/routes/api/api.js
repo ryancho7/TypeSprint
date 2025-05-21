@@ -17,5 +17,4 @@ router.use('/games', gamesRouter);
 router.use('/auth', authRouter);
 router.use('/leaderboard', leaderboardRouter);
 
-
 export default router
