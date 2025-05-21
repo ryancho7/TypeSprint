@@ -9,12 +9,12 @@ export default function Race() {
     // const sampleText = "The quick brown fox jumps over the lazy dog, but only after sipping some cold lemonade under the blazing summer sun.";
     const textArray = sampleText.split(" ");
 
-    const [ currentInput, setCurrentInput ] = useState("");
-    const [ currentWordIndex, setCurrentWordIndex ] = useState(0);
-    const [ status, setStatus ] = useState("waiting");
-    const [ error, setError ] = useState(false);
+    const [currentInput, setCurrentInput] = useState("");
+    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    const [status, setStatus] = useState("waiting");
+    const [error, setError] = useState(false);
     const [startTime, setStartTime] = useState(null);
-    const [ carPosition, setCarPosition ] = useState(0);
+    const [carPosition, setCarPosition] = useState(0);
 
 
     const handleInputChange = (e) => {
@@ -26,17 +26,17 @@ export default function Race() {
         }
 
         // attempted finish
-        if(value.endsWith(" ")) {
+        if (value.endsWith(" ")) {
             const currWord = value.trim();
-            if(currWord !== textArray[currentWordIndex]) {
+            if (currWord !== textArray[currentWordIndex]) {
                 setError(true);
             } else {
-                setCarPosition(carPosition+1);
-                setCurrentWordIndex(currentWordIndex+1);
+                setCarPosition(carPosition + 1);
+                setCurrentWordIndex(currentWordIndex + 1);
                 setCurrentInput("");
                 setError(false);
                 // check if race is over
-                if(currentWordIndex + 1 === textArray.length) {
+                if (currentWordIndex + 1 === textArray.length) {
                     setStatus("finished");
                 }
             }
@@ -44,11 +44,11 @@ export default function Race() {
             // update curr value
             setCurrentInput(value);
         }
-        
+
     }
 
     const calculateWPM = () => {
-        if(status === "finished") {
+        if (status === "finished") {
             const min = (Date.now() - startTime) / 1000 / 60;
             return Math.round((textArray.length / min));
         }
@@ -70,12 +70,12 @@ export default function Race() {
             <div>
                 {textArray.map((word, index) => {
                     let className = "px-1";
-                    if(index === currentWordIndex) {
+                    if (index === currentWordIndex) {
                         className += " text-white underline";
-                        if(error) {
+                        if (error) {
                             className = "underline text-red-500"
                         }
-                    } else if(index < currentWordIndex) {
+                    } else if (index < currentWordIndex) {
                         className += " text-green-400";
                     } else {
                         className += " text-gray-500"
@@ -99,21 +99,20 @@ export default function Race() {
                 <div>
                     <h1 className="text-white">Finished!</h1>
                     <p className="text-white">Final WPM: {calculateWPM()}</p>
-                    <button 
+                    <button
                         className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
                         onClick={() => window.location.reload()}
                     >
                         Race Again
                     </button>
-                    <button 
+                    <button
                         className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
                         onClick={() => navigate('/dashboard')}
                     >
-                        Go to Dashboard
+                        Go To Race
                     </button>
-                </div>                
+                </div>
             )}
         </div>
     )
 }
-  
