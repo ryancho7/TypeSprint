@@ -1,118 +1,117 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../contexts/authContext.js';
+import { io } from 'socket.io-client';
 
 export default function Race() {
+    const { auth } = useContext(AuthContext);
+    const [socket, setSocket] = useState(null);
+    const [text, setText] = useState('');
+    const [input, setInput] = useState('');
+    const [progressMap, setProgressMap] = useState({});  // { socketId: charsTyped }
+    const [myId, setMyId] = useState(null);
+    const raceId = 'room123';
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        if (!auth.isAuthenticated) return;
 
-    const sampleText = "Test run"
-    // const sampleText = "The quick brown fox jumps over the lazy dog, but only after sipping some cold lemonade under the blazing summer sun.";
-    const textArray = sampleText.split(" ");
+        // Connect
+        const s = io('http://localhost:3000', {
+            withCredentials: true
+        });
+        setSocket(s);
 
-    const [currentInput, setCurrentInput] = useState("");
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [status, setStatus] = useState("waiting");
-    const [error, setError] = useState(false);
-    const [startTime, setStartTime] = useState(null);
-    const [carPosition, setCarPosition] = useState(0);
+        s.on('connect', () => {
+            setMyId(s.id);
+            // join immediately on connect (change this later to join if clicking on button?)
+            s.emit('joinRace', { raceId });
+        });
 
+        // Initial state (text + everyone’s progress)
+        s.on('raceState', ({ text, participants }) => {
+            setText(text);
+            setProgressMap(participants);
+        });
 
-    const handleInputChange = (e) => {
-        const value = e.target.value;
+        // Race start
+        s.on('start', ({ text }) => {
+            setText(text);
+        });
 
-        if (status === "waiting") {
-            setStatus("started");
-            setStartTime(Date.now());
-        }
+        // Anytime any user's progress updates
+        s.on('progressUpdate', ({ participants }) => {
+            setProgressMap(participants);
+        });
 
-        // attempted finish
-        if (value.endsWith(" ")) {
-            const currWord = value.trim();
-            if (currWord !== textArray[currentWordIndex]) {
-                setError(true);
-            } else {
-                setCarPosition(carPosition + 1);
-                setCurrentWordIndex(currentWordIndex + 1);
-                setCurrentInput("");
-                setError(false);
-                // check if race is over
-                if (currentWordIndex + 1 === textArray.length) {
-                    setStatus("finished");
-                }
-            }
-        } else {
-            // update curr value
-            setCurrentInput(value);
-        }
+        return () => {
+            s.disconnect();
+        };
+    }, [auth.isAuthenticated]);
 
+    if (!auth.isAuthenticated) {
+        return <div>Please sign in to race.</div>;
     }
 
-    const calculateWPM = () => {
-        if (status === "finished") {
-            const min = (Date.now() - startTime) / 1000 / 60;
-            return Math.round((textArray.length / min));
-        }
-        return 0;
-    }
+    // handle our typing
+    const handleChange = (e) => {
+        const val = e.target.value;
+        setInput(val);
 
+        socket.emit('updateProgress', {
+            raceId,
+            progress: val.length
+        });
+    };
 
+    // render the passage with everything you've typed colored green (by chatgpt change later)
+    const renderedText = text.split('').map((char, idx) => {
+        const isTyped = idx < input.length;
+        return (
+            <span
+                key={idx}
+                style={{
+                    backgroundColor: isTyped ? 'rgba(0,255,0,0.2)' : 'transparent'
+                }}
+            >
+                {char}
+            </span>
+        );
+    });
+
+    // Temp display by chatgpt, change later
     return (
-        <div className="flex flex-col gap-[100px] justify-center items-center bg-[#1E1E1E] min-h-screen w-full">
-            <h1 className="text-xl">Race Screen</h1>
-            <div className="w-[80%]">
-                <p
-                    className="text-white transition-all duration-1000 bg-slate-500"
-                    style={{ marginLeft: `${(carPosition / textArray.length) * 100}%` }}
-                >
-                    🏎️
-                </p>
+        <div style={{ padding: 20, fontFamily: 'monospace' }}>
+
+            <h2>Type Sprint</h2>
+
+            <div style={{
+                border: '1px solid #ccc',
+                padding: 16,
+                marginBottom: 12,
+                whiteSpace: 'pre-wrap'
+            }}>
+                {renderedText}
             </div>
-            <div>
-                {textArray.map((word, index) => {
-                    let className = "px-1";
-                    if (index === currentWordIndex) {
-                        className += " text-white underline";
-                        if (error) {
-                            className = "underline text-red-500"
-                        }
-                    } else if (index < currentWordIndex) {
-                        className += " text-green-400";
-                    } else {
-                        className += " text-gray-500"
-                    }
-                    return (
-                        <span key={index} className={className}>
-                            {word}
-                        </span>
-                    )
-                })}
-            </div>
-            <input
-                type="text"
-                className="bg-white text-black px-4 py-2 rounded outline-none"
-                value={currentInput}
-                onChange={handleInputChange}
-                disabled={status === "finished"}
-                placeholder="Start typing here"
+
+            <textarea
+                rows={5}
+                cols={60}
+                value={input}
+                onChange={handleChange}
+                placeholder="Start typing here…"
+                style={{ fontFamily: 'monospace', fontSize: '1rem' }}
             />
-            {status === "finished" && (
-                <div>
-                    <h1 className="text-white">Finished!</h1>
-                    <p className="text-white">Final WPM: {calculateWPM()}</p>
-                    <button
-                        className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
-                        onClick={() => window.location.reload()}
-                    >
-                        Race Again
-                    </button>
-                    <button
-                        className="border px-[213px] py-2 rounded-[40px] text-white transition duration-300 ease-in-out hover:text-[#1E1E1E] hover:bg-white"
-                        onClick={() => navigate('/dashboard')}
-                    >
-                        Go To Race
-                    </button>
-                </div>
-            )}
+
+            <h3>Leaderboard</h3>
+            <ul>
+                {Object.entries(progressMap).map(([id, prog]) => {
+                    const isMe = id === myId;
+                    return (
+                        <li key={id} style={{ fontWeight: isMe ? 'bold' : 'normal' }}>
+                            {isMe ? 'You' : id}: {prog} / {text.length} chars
+                        </li>
+                    );
+                })}
+            </ul>
         </div>
-    )
+    );
 }
