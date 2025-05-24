@@ -10,7 +10,7 @@ import { dirname } from 'path';
 
 import apiRouter from './routes/api/api.js'
 import models from './models.js';
-
+import enableWs from 'express-ws';
 import dotenv from 'dotenv';
 import WebAppAuthProvider from 'msal-node-wrapper';
 
@@ -38,6 +38,48 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 var app = express();
+enableWs(app);
+
+let allSockets = [];
+
+app.ws('/chatSocket', (ws) => {
+    console.log("✅ Client connected");
+    allSockets.push(ws);
+
+    ws.on('message', (msg) => {
+        console.log("📩 Received from client:", msg);
+        allSockets.forEach(socket => {
+            if (socket.readyState === 1) {
+                socket.send("New message: " + msg);
+            }
+        });
+    });
+
+    ws.on('close', () => {
+        console.log("❌ Client disconnected");
+        allSockets = allSockets.filter(socket => socket !== ws);
+    });
+});
+
+// let allSockets = [];
+
+// app.ws('/chatSocket', (ws) => {
+//     allSockets.push(ws);
+
+//     ws.on('message', (msg) => {
+//         console.log("Received from client:", msg); 
+//         // Broadcast to all sockets
+//         allSockets.forEach(socket => {
+//             if (socket.readyState === 1) { // 1 = OPEN
+//                 socket.send(msg);
+//             }
+//         });
+//     });
+
+//     ws.on('close', () => {
+//         allSockets = allSockets.filter(socket => socket !== ws);
+//     });
+// });
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -77,12 +119,27 @@ app.get('/signout', (req, res, next) => {
 
 app.use(authProvider.interactionErrorHandler());
 
-app.use('/*', createProxyMiddleware({
-    // for windows
-    // target: 'http://127.0.0.1:4000',
-    target: 'http://localhost:4000',
-    pathRewrite: (path, req) => req.baseUrl,
-    changeOrigin: true
-}))
+app.use((req, res, next) => {
+  if (req.path === '/chatSocket') {
+    // Let the WebSocket handler take over
+    return next();
+  }
+  // For all other paths, proxy the request
+  createProxyMiddleware({
+    target: 'http://127.0.0.1:4000',
+    pathRewrite: (path) => path,  // or your actual rewrite logic
+    changeOrigin: true,
+    ws: true,
+  })(req, res, next);
+});
+
+// app.use('/*', createProxyMiddleware({
+//     // for windows
+//     target: 'http://127.0.0.1:4000',
+//     // target: 'http://localhost:4000',
+//     pathRewrite: (path, req) => req.baseUrl,
+//     changeOrigin: true,
+//     ws: true,
+// }))
 
 export default app;
