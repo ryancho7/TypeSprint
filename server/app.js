@@ -1,12 +1,8 @@
 import express from 'express';
-import path from 'path';
 import cookieParser from 'cookie-parser';
 import sessions from 'express-session';
 import logger from 'morgan';
 import { createProxyMiddleware } from 'http-proxy-middleware';
-
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 import apiRouter from './routes/api/api.js'
 import models from './models.js';
@@ -33,9 +29,6 @@ const authConfig = {
         }
     }
 };
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 var app = express();
 
