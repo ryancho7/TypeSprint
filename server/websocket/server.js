@@ -16,7 +16,7 @@ io.on('connection', (socket) => {
 
     socket.on('joinRace', ({ raceId }) => {
         socket.join(raceId);
-        races[raceId] ||= { text: "temp temp temp temp a b c d", participants: {} };
+        races[raceId] ||= { text: "The quick brown fox jumps over the lazy dog. Every second counts, so type fast and stay focused!", participants: {} };
         races[raceId].participants[socket.id] = 0;
         io.in(raceId).emit('raceState', races[raceId]);
     });
