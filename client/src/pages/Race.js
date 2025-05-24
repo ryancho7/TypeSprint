@@ -77,7 +77,7 @@ export default function Race() {
         );
     });
 
-    // Temp display by chatgpt, change later
+    // change later
     return (
         <div style={{ padding: 20, fontFamily: 'monospace' }}>
 

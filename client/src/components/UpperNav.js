@@ -22,7 +22,7 @@ function UpperNav({ auth }) {
                             <div class="hidden sm:ml-6 sm:block">
                                 <div class="flex space-x-4">
 
-                                    <a href="/dashboard" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
+                                    <a href="/race" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
                                     <a href="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">FRIENDS</a>
                                     <a href="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">RECORDS</a>
                                 </div>
@@ -65,7 +65,7 @@ function UpperNav({ auth }) {
                         <div class="hidden sm:ml-6 sm:block">
                             <div class="flex space-x-4">
 
-                                <a href="/dashboard" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
+                                <a href="/race" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
                             </div>
                         </div>
                     </div>
