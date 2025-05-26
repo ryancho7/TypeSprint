@@ -54,22 +54,37 @@ export default function Race() {
     // handle our typing
     const handleChange = (e) => {
         const val = e.target.value;
+
+        // prevent typing beyond length
+        if (val.length > text.length) return;
+
         setInput(val);
+
+        // user must correctly type entire sentence to finish
+        const accurateFinish = val === text;
 
         socket.emit('updateProgress', {
             raceId,
-            progress: val.length
+            progress: val.length,
+            accurateFinish: accurateFinish
         });
     };
+
+    // finished check
+    const isFinished = progressMap[myId]?.accurateFinish === true;
+
+    // for determining correct character
+    const textCheckArr = text.split('');
 
     // render the passage with everything you've typed colored green (by chatgpt change later)
     const renderedText = text.split('').map((char, idx) => {
         const isTyped = idx < input.length;
+        const isCorrect = textCheckArr[idx] === input[idx];
         return (
             <span
                 key={idx}
                 style={{
-                    backgroundColor: isTyped ? 'rgba(0,255,0,0.2)' : 'transparent'
+                    backgroundColor: isTyped ? isCorrect ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)' : 'transparent'
                 }}
             >
                 {char}
@@ -99,15 +114,16 @@ export default function Race() {
                 onChange={handleChange}
                 placeholder="Start typing here…"
                 style={{ fontFamily: 'monospace', fontSize: '1rem' }}
+                disabled={isFinished}
             />
 
             <h3>Leaderboard</h3>
             <ul>
-                {Object.entries(progressMap).map(([id, prog]) => {
+                {Object.entries(progressMap).map(([id, {progress, accurateFinish}]) => {
                     const isMe = id === myId;
                     return (
                         <li key={id} style={{ fontWeight: isMe ? 'bold' : 'normal' }}>
-                            {isMe ? 'You' : id}: {prog} / {text.length} chars
+                            {isMe ? 'You' : id}: {progress} / {text.length} chars {accurateFinish ? ' (Finished!)' : ''}
                         </li>
                     );
                 })}
