@@ -16,14 +16,22 @@ io.on('connection', (socket) => {
 
     socket.on('joinRace', ({ raceId }) => {
         socket.join(raceId);
-        races[raceId] ||= { text: "The quick brown fox jumps over the lazy dog. Every second counts, so type fast and stay focused!", participants: {} };
-        races[raceId].participants[socket.id] = 0;
+        races[raceId] ||= { text: "Testing text", participants: {} };
+        races[raceId].participants[socket.id] = {
+            progress: 0,
+            accurateFinish: false
+        };
         io.in(raceId).emit('raceState', races[raceId]);
     });
 
-    socket.on('updateProgress', ({ raceId, progress }) => {
+    socket.on('updateProgress', ({ raceId, progress, accurateFinish }) => {
         if (!races[raceId]) return;
-        races[raceId].participants[socket.id] = progress;
+
+        const participant = races[raceId].participants[socket.id];
+
+        participant.progress = progress;
+        participant.accurateFinish = accurateFinish;
+
         io.in(raceId).emit('progressUpdate', {
             participants: races[raceId].participants
         });
