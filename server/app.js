@@ -17,8 +17,8 @@ const authConfig = {
         clientId: process.env.AZURE_CLIENT_ID,
         authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
         clientSecret: process.env.AZURE_CLIENT_SECRET,
-        // redirectUri: "/redirect"
-        redirectUri: "https://typesprint.ryancho.me/redirect"
+        redirectUri: "/redirect"
+        // redirectUri: "https://typesprint.ryancho.me/redirect"
     },
     system: {
         loggerOptions: {
