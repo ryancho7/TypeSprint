@@ -30,6 +30,7 @@ export default function Race() {
         s.on('raceState', ({ text, participants }) => {
             setText(text);
             setProgressMap(participants);
+            setMyId(s.id);
         });
 
         // Race start

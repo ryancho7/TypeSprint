@@ -1,6 +1,7 @@
 import app from '../app.js';
 import http from 'http';
 import { Server } from 'socket.io';
+import models from '../models.js'; 
 
 const server = http.createServer(app);
 
@@ -14,9 +15,17 @@ const races = {}; // { raceId: { text, participants: { socketId: progress } } }
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
 
-    socket.on('joinRace', ({ raceId }) => {
+    socket.on('joinRace', async ({ raceId }) => {
         socket.join(raceId);
-        races[raceId] ||= { text: "Testing text", participants: {} };
+        if (!races[raceId]) {
+            const [randomSentence] = await models.Sentence.aggregate([{ $sample: { size: 1 } }]);
+            const sentenceText = randomSentence?.sentence || "The boring default text for you to type";
+      
+            races[raceId] = {
+                text: sentenceText,
+                participants: {}
+            };
+        }
         races[raceId].participants[socket.id] = {
             progress: 0,
             accurateFinish: false
