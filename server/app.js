@@ -1,8 +1,8 @@
 import express from 'express';
+import path from 'path';
 import cookieParser from 'cookie-parser';
 import sessions from 'express-session';
 import logger from 'morgan';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import apiRouter from './routes/api/api.js'
 import models from './models.js';
@@ -10,7 +10,13 @@ import models from './models.js';
 import dotenv from 'dotenv';
 import WebAppAuthProvider from 'msal-node-wrapper';
 
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const authConfig = {
     auth: {
@@ -77,14 +83,14 @@ app.use((req, res, next) => {
 // API
 app.use('/api', apiRouter);
 
-// PROXY
-app.use('/*', createProxyMiddleware({
-    // for windows
-    target: 'http://127.0.0.1:4000',
-    // target: 'http://localhost:4000',
-    pathRewrite: (path, req) => req.baseUrl,
-    changeOrigin: true,
-    ws: true
-}))
+// API
+app.use('/api', apiRouter);
+
+// Deployment
+const clientBuildPath = path.join(__dirname, '..', 'client', 'build');
+app.use(express.static(clientBuildPath));
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
 
 export default app;
