@@ -1,85 +1,87 @@
+import { useState } from "react";
+
 function UpperNav({ auth }) {
+    const [active, setActive] = useState("play");
+
+    const getBtnClass = (btn) =>
+        `rounded-[10px] px-6 py-2 flex items-center justify-center transition-colors duration-150 cursor-pointer group
+        ${active === btn
+            ? "bg-white text-black"
+            : "bg-transparent hover:bg-white focus:bg-white"
+        }`;
+
+    const getTextClass = (btn) =>
+        `text-[25px] font-extrabold leading-[120%] tracking-[-0.03em] transition-colors duration-150
+        ${active === btn
+            ? "text-black"
+            : "text-white group-hover:text-black group-focus:text-black"
+        }`;
+
     if (auth.isAuthenticated) {
         return (
-            < nav class="bg-black" >
-                <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                    <div class="relative flex h-16 items-center justify-between">
-                        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                            <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset" aria-controls="mobile-menu" aria-expanded="false">
-                                <span class="absolute -inset-0.5"></span>
-                                <span class="sr-only">Open main menu</span>
-
-                                <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                                </svg>
-
-                                <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                            <div class="hidden sm:ml-6 sm:block">
-                                <div class="flex space-x-4">
-
-                                    <a href="/race" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
-                                    <a href="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">FRIENDS</a>
-                                    <a href="/dashboard" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">RECORDS</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                            <div class="relative ml-3">
-                                <div>
-                                    <button type="button" class="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                        <img class="size-8 rounded-full" src="https://i.pinimg.com/736x/ed/de/89/edde897bf47591b076ebea01ca370bc8.jpg" alt="" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+            <nav className="bg-black flex items-center justify-between pt-10 pl-16 pr-16 z-10">
+                <div className="flex flex-row gap-[22px] items-center">
+                    <button
+                        className={getBtnClass("play")}
+                        onClick={() => setActive("play")}
+                        type="button"
+                    >
+                        <span className={getTextClass("play")}>PLAY</span>
+                    </button>
+                    <button
+                        className={getBtnClass("friends")}
+                        onClick={() => setActive("friends")}
+                        type="button"
+                    >
+                        <span className={getTextClass("friends")}>FRIENDS</span>
+                    </button>
+                    <button
+                        className={getBtnClass("records")}
+                        onClick={() => setActive("records")}
+                        type="button"
+                    >
+                        <span className={getTextClass("records")}>RECORDS</span>
+                    </button>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="bg-[#2d3b3f] text-white rounded-[8px] px-4 py-1 text-[18px] font-bold tracking-wide">
+                        LV.11
+                    </div>
+                    <img
+                        className="w-12 h-12 rounded-[10px] object-cover"
+                        src="https://i.pinimg.com/736x/ed/de/89/edde897bf47591b076ebea01ca370bc8.jpg"
+                        alt="Profile"
+                    />
+                </div>
+            </nav>
+        );
+    } else {
+        return (
+            <nav className="bg-black flex items-center justify-between pt-10 pl-16 pr-16 z-10">
+                <div className="flex flex-row gap-[22px] items-center">
+                    <button
+                        className={getBtnClass("play")}
+                        onClick={() => setActive("play")}
+                        type="button"
+                    >
+                        <span className={getTextClass("play")}>PLAY</span>
+                    </button>
+                    <button
+                        className={getBtnClass("records")}
+                        onClick={() => setActive("records")}
+                        type="button"
+                    >
+                        <span className={getTextClass("records")}>RECORDS</span>
+                    </button>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="bg-[#2d3b3f] text-white rounded-[8px] px-4 py-1 text-[18px] font-bold tracking-wide">
+                        GUEST MODE
                     </div>
                 </div>
-            </nav >
-        )
+            </nav>
+        );
     }
-
-    return (
-        < nav class="bg-black" >
-            <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                <div class="relative flex h-16 items-center justify-between">
-                    <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                        <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset" aria-controls="mobile-menu" aria-expanded="false">
-                            <span class="absolute -inset-0.5"></span>
-                            <span class="sr-only">Open main menu</span>
-
-                            <svg class="block size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                            </svg>
-
-                            <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                        <div class="hidden sm:ml-6 sm:block">
-                            <div class="flex space-x-4">
-
-                                <a href="/race" class="rounded-md bg-[#F2F8FF] px-3 py-2 text-sm font-medium text-black" aria-current="page">PLAY</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                        <div class="relative ml-3">
-                            <div>
-                                <a href="/signin" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign In</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav >
-    )
 }
 
-export default UpperNav
+export default UpperNav;
