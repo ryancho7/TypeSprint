@@ -1,7 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 function UpperNav({ auth }) {
     const [active, setActive] = useState("play");
+
+    const navigate = useNavigate();
+
+    const handlePlayClick = () => {
+        setActive("play");
+        navigate("/race");
+    };
 
     const getBtnClass = (btn) =>
         `rounded-[10px] px-6 py-2 flex items-center justify-center transition-colors duration-150 cursor-pointer group
@@ -17,13 +25,15 @@ function UpperNav({ auth }) {
             : "text-white group-hover:text-black group-focus:text-black"
         }`;
 
+    
+
     if (auth.isAuthenticated) {
         return (
             <nav className="bg-black flex items-center justify-between pt-10 pl-16 pr-16 z-10">
                 <div className="flex flex-row gap-[22px] items-center">
                     <button
                         className={getBtnClass("play")}
-                        onClick={() => setActive("play")}
+                        onClick={handlePlayClick}
                         type="button"
                     >
                         <span className={getTextClass("play")}>PLAY</span>

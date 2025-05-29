@@ -68,20 +68,20 @@ app.get('/signout', (req, res, next) => {
 });
 // ** END AUTH **
 
-// API
-app.use('/api', apiRouter);
-
 // Models
 app.use((req, res, next) => {
     req.models = models
     next();
 });
 
+// API
+app.use('/api', apiRouter);
+
 // PROXY
 app.use('/*', createProxyMiddleware({
     // for windows
-    // target: 'http://127.0.0.1:4000',
-    target: 'http://localhost:4000',
+    target: 'http://127.0.0.1:4000',
+    // target: 'http://localhost:4000',
     pathRewrite: (path, req) => req.baseUrl,
     changeOrigin: true,
     ws: true

@@ -1,7 +1,6 @@
 import app from '../app.js';
 import http from 'http';
 import { Server } from 'socket.io';
-import models from '../models.js'; 
 
 const server = http.createServer(app);
 
@@ -12,14 +11,24 @@ const io = new Server(server, {
 // simple in-memory game state
 const races = {}; // { raceId: { text, participants: { socketId: progress } } }
 
+async function fetchRandomSentence() {
+    try {
+        const res = await fetch('http://localhost:3000/api/text/getSentence');
+        const data = await res.json();
+        return data.sentence;
+    } catch (error) {
+        console.error('Error fetching sentence:', error);
+        return "The boring default text for you to type";
+    }
+}
+
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
 
     socket.on('joinRace', async ({ raceId }) => {
         socket.join(raceId);
         if (!races[raceId]) {
-            const [randomSentence] = await models.Sentence.aggregate([{ $sample: { size: 1 } }]);
-            const sentenceText = randomSentence?.sentence || "The boring default text for you to type";
+            const sentenceText = await fetchRandomSentence();
       
             races[raceId] = {
                 text: sentenceText,
