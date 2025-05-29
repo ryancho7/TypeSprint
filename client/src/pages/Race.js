@@ -9,6 +9,7 @@ export default function Race() {
     const [input, setInput] = useState('');
     const [progressMap, setProgressMap] = useState({});  // { socketId: charsTyped }
     const [myId, setMyId] = useState(null);
+    const [myResult, setMyResult] = useState(null);
     const raceId = 'room123';
 
     useEffect(() => {
