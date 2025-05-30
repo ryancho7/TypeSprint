@@ -82,15 +82,12 @@ export default function Leaderboard() {
             <h2 className="bg-gradient-to-b from-slate-50 to-neutral-500 bg-clip-text text-transparent font-bold text-[100px] mt-16">Leaderboard</h2>
             
             <div className="w-full max-w-4xl mx-auto mt-8">
-                {/* Table Header */}
                 <div className="grid grid-cols-4 gap-4 p-6 mb-4 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl">
                     <div className="text-left font-semibold text-lg text-white/90 tracking-wide">Rank</div>
                     <div className="text-left font-semibold text-lg text-white/90 tracking-wide">Player</div>
                     <div className="text-center font-semibold text-lg text-white/90 tracking-wide">WPM</div>
                     <div className="text-right font-semibold text-lg text-white/90 tracking-wide">Date</div>
                 </div>
-                
-                {/* Table Body */}
                 <div className="space-y-2">
                     {leaderboard.map((record, index) => {
                         const position = index + 1;
