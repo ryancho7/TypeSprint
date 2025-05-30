@@ -22,6 +22,22 @@ async function fetchRandomSentence() {
     }
 }
 
+async function saveRaceResult(username, wpm, finishingPosition) {
+    try {
+        await fetch('http://localhost:3000/api/games/results', {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: username,
+                wpm: wpm,
+                finishingPosition: finishingPosition
+            })
+        });
+    } catch (error) {
+        console.error('Error saving race result:', error);
+    }
+}
+
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
 

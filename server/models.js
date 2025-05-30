@@ -13,6 +13,14 @@ const sentenceSchema = new mongoose.Schema({
     sentence: String
 });
 
+const raceHistorySchema = new mongoose.Schema({
+    username: String,
+    wpm: Number,
+    finishingPosition: Number,
+    date: Date,
+});
+
 models.Sentence = mongoose.model('Sentence', sentenceSchema);
+models.RaceHistory = mongoose.model('RaceHistory', raceHistorySchema);
 
 export default models
