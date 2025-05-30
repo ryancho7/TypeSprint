@@ -41,19 +41,24 @@ async function saveRaceResult(username, wpm, finishingPosition) {
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
 
-    socket.on('joinRace', async ({ raceId }) => {
+    socket.on('joinRace', async ({ raceId, username }) => {
         socket.join(raceId);
         if (!races[raceId]) {
             const sentenceText = await fetchRandomSentence();
       
             races[raceId] = {
                 text: sentenceText,
-                participants: {}
+                participants: {},
+                startTime: null,
+                finishOrder: []
             };
         }
         races[raceId].participants[socket.id] = {
             progress: 0,
-            accurateFinish: false
+            accurateFinish: false,
+            username: username || socket.id,
+            startTime: null,
+            endTime: null
         };
         io.in(raceId).emit('raceState', races[raceId]);
     });
@@ -61,10 +66,40 @@ io.on('connection', (socket) => {
     socket.on('updateProgress', ({ raceId, progress, accurateFinish }) => {
         if (!races[raceId]) return;
 
-        const participant = races[raceId].participants[socket.id];
+        const race = races[raceId];
+        const participant = race.participants[socket.id];
+
+        // time start on first keystroke
+        if(!participant.startTime && progress > 0) {
+            participant.startTime = Date.now();
+            if(!race.startTime) {
+                race.startTime = Date.now();
+            }
+        }
 
         participant.progress = progress;
-        participant.accurateFinish = accurateFinish;
+        
+        // handle race completion -> ensure that there is no duplicate finishing
+        if(accurateFinish && !participant.accurateFinish) {
+            participant.accurateFinish = true;
+            participant.endTime = Date.now();
+            // update finished order
+            race.finishOrder.push(socket.id);
+            const finishingPosition = race.finishOrder.length;
+            // calculate wpm based on start and end time
+            const min = (participant.endTime - participant.startTime) / (1000 * 60);
+            const wordCount = race.text.split(' ').length;
+            const wpm = Math.round(wordCount / min);
+            // save result
+            saveRaceResult(participant.username, wpm, finishingPosition);
+            // emit completion
+            io.in(raceId).emit('raceComplete', {
+                socketId: socket.id,
+                username: participant.username,
+                wpm,
+                finishingPosition
+            });
+        }
 
         io.in(raceId).emit('progressUpdate', {
             participants: races[raceId].participants
@@ -72,7 +107,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('startRace', ({ raceId }) => {
-        io.in(raceId).emit('start', { text: races[raceId].text });
+        if (races[raceId]) {
+            races[raceId].startTime = Date.now();
+            io.in(raceId).emit('start', { text: races[raceId].text });
+        }
     });
 
     socket.on('disconnecting', () => {
