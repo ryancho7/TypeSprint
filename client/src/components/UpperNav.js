@@ -11,6 +11,11 @@ function UpperNav({ auth }) {
         navigate("/race");
     };
 
+    const handleRecordsClick = () => {
+        setActive("records");
+        navigate("/records");
+    }
+
     const getBtnClass = (btn) =>
         `rounded-[10px] px-6 py-2 flex items-center justify-center transition-colors duration-150 cursor-pointer group
         ${active === btn
@@ -47,7 +52,7 @@ function UpperNav({ auth }) {
                     </button>
                     <button
                         className={getBtnClass("records")}
-                        onClick={() => setActive("records")}
+                        onClick={handleRecordsClick}
                         type="button"
                     >
                         <span className={getTextClass("records")}>RECORDS</span>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Home from './pages/Home.js';
 import Dashboard from './pages/Dashboard.js';
 import Race from './pages/Race.js';
+import Records from './pages/Records.js';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/race" element={<Race />} />
+          <Route path="/records" element={<Records />} />
         </Routes>
       </Router>
     </AuthContext.Provider>
