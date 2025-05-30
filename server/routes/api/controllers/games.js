@@ -4,7 +4,7 @@ var router = express.Router();
 router.get('/results', async (req, res) => {
     try {
         const username = req.query.username;
-        const results = await req.models.RaceHistory.find({username: username});
+        const results = await req.models.RaceHistory.find({username: username}).sort({date: -1});
         res.json(results);
     } catch (error) {
         console.error('Error fetching race results:', error);
