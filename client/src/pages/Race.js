@@ -24,7 +24,7 @@ export default function Race() {
         s.on('connect', () => {
             setMyId(s.id);
             // join immediately on connect + provide username
-            s.emit('joinRace', { raceId, username: auth.user?.username || auth.user?.name || 'Anonymous' });
+            s.emit('joinRace', { raceId, username: auth.user?.username || 'Anonymous' });
         });
 
         // Initial state (text + everyone’s progress)
@@ -52,7 +52,7 @@ export default function Race() {
         return () => {
             s.disconnect();
         };
-    }, [auth.isAuthenticated]);
+    }, [auth.isAuthenticated, auth.user?.username]);
 
     if (!auth.isAuthenticated) {
         return <div>Please sign in to race.</div>;

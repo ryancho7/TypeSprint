@@ -3,9 +3,12 @@ var router = express.Router();
 
 router.get('/results', async (req, res) => {
     try {
-
+        const username = req.query.username;
+        const results = await req.models.RaceHistory.find({username: username});
+        res.json(results);
     } catch (error) {
-        
+        console.error('Error fetching race results:', error);
+        res.status(500).json({ error: 'Failed to fetch race results' });
     }
 })
 
