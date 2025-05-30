@@ -5,6 +5,7 @@ import Home from './pages/Home.js';
 import Dashboard from './pages/Dashboard.js';
 import Race from './pages/Race.js';
 import Records from './pages/Records.js';
+import Leaderboard from './pages/Leaderboard.js';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/race" element={<Race />} />
           <Route path="/records" element={<Records />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
         </Routes>
       </Router>
     </AuthContext.Provider>

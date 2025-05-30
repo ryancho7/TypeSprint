@@ -16,7 +16,6 @@ export default function Records() {
             try {
                 const res = await fetch('http://localhost:3000/api/games/results?username=' + auth.user?.username);
                 const data = await res.json();
-                console.log(data);
                 setRecords(data);
             } catch (error) {
                 console.error('Error saving race result:', error);
