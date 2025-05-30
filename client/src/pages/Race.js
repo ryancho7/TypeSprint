@@ -9,7 +9,7 @@ export default function Race() {
     const [input, setInput] = useState('');
     const [progressMap, setProgressMap] = useState({});  // { socketId: charsTyped }
     const [myId, setMyId] = useState(null);
-    const [myResult, setMyResult] = useState(null);
+    const [raceResults, setRaceResults] = useState([]);
     const raceId = 'room123';
 
     useEffect(() => {
@@ -23,8 +23,8 @@ export default function Race() {
 
         s.on('connect', () => {
             setMyId(s.id);
-            // join immediately on connect (change this later to join if clicking on button?)
-            s.emit('joinRace', { raceId });
+            // join immediately on connect + provide username
+            s.emit('joinRace', { raceId, username: auth.user?.username || auth.user?.name || 'Anonymous' });
         });
 
         // Initial state (text + everyone’s progress)
@@ -42,6 +42,11 @@ export default function Race() {
         // Anytime any user's progress updates
         s.on('progressUpdate', ({ participants }) => {
             setProgressMap(participants);
+        });
+
+        s.on('raceComplete', ({ socketId, username, wpm, finishingPosition }) => {
+            const result = { socketId, username, wpm, finishingPosition };
+            setRaceResults(prev => [...prev, result]);
         });
 
         return () => {
@@ -94,6 +99,8 @@ export default function Race() {
         );
     });
 
+    const myResult = raceResults.find(r => r.socketId === myId);
+
     // change later
     return (
         <div style={{ padding: 20, fontFamily: 'monospace' }}>
@@ -125,11 +132,22 @@ export default function Race() {
                     const isMe = id === myId;
                     return (
                         <li key={id} style={{ fontWeight: isMe ? 'bold' : 'normal' }}>
-                            {isMe ? 'You' : id}: {progress} / {text.length} chars {accurateFinish ? ' (Finished!)' : ''}
+                            {isMe ? 'You' : progressMap[id]?.username || id}: {progress} / {text.length} chars {accurateFinish ? ' (Finished!)' : ''}
                         </li>
                     );
                 })}
             </ul>
+
+            {isFinished && (
+                <div style={{ background: '#e8f5e8', padding: 16, marginBottom: 12, borderRadius: 4 }}>
+                    <h3>🎉 You Finished!</h3>
+                    <p>Your WPM: <strong>{myResult?.wpm || 'Calculating...'}</strong></p>
+                    <p>Position: <strong>#{myResult?.finishingPosition || 'Calculating...'}</strong></p>
+                    <p style={{ fontSize: '0.9em', marginTop: 8 }}>
+                        Waiting for {Object.values(progressMap).filter(p => !p.accurateFinish).length} other(s) to finish...
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
