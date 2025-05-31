@@ -30,9 +30,9 @@ function UpperNav({ auth }) {
             : "text-white group-hover:text-black group-focus:text-black"
         }`;
 
-    
 
-    if (auth.isAuthenticated) {
+
+    if (auth.isAuthenticated && !auth.inGuestMode) {
         return (
             <nav className="bg-black flex items-center justify-between pt-10 pl-16 pr-16 z-10">
                 <div className="flex flex-row gap-[22px] items-center">
@@ -70,7 +70,7 @@ function UpperNav({ auth }) {
                 </div>
             </nav>
         );
-    } else {
+    } else if (auth.isAuthenticated && auth.inGuestMode) {
         return (
             <nav className="bg-black flex items-center justify-between pt-10 pl-16 pr-16 z-10">
                 <div className="flex flex-row gap-[22px] items-center">
@@ -83,7 +83,7 @@ function UpperNav({ auth }) {
                     </button>
                     <button
                         className={getBtnClass("records")}
-                        onClick={() => setActive("records")}
+                        onClick={handleRecordsClick}
                         type="button"
                     >
                         <span className={getTextClass("records")}>RECORDS</span>
@@ -96,6 +96,10 @@ function UpperNav({ auth }) {
                 </div>
             </nav>
         );
+    } else {
+        return (
+            <div>sign in or use guest mode</div>
+        )
     }
 }
 

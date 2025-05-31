@@ -54,8 +54,8 @@ export default function Race() {
         };
     }, [auth.isAuthenticated, auth.user?.username]);
 
-    if (!auth.isAuthenticated) {
-        return <div>Please sign in to race.</div>;
+    if (!auth.isAuthenticated && !auth.user) {
+        return <div>Please sign in or use guest mode to race</div>;
     }
 
     // handle our typing
@@ -128,7 +128,7 @@ export default function Race() {
 
             <h3>Leaderboard</h3>
             <ul>
-                {Object.entries(progressMap).map(([id, {progress, accurateFinish}]) => {
+                {Object.entries(progressMap).map(([id, { progress, accurateFinish }]) => {
                     const isMe = id === myId;
                     return (
                         <li key={id} style={{ fontWeight: isMe ? 'bold' : 'normal' }}>
