@@ -15,16 +15,12 @@ export default function Home() {
             .slice(0, 16);
     }
 
-    // not signed in
+    // Not signed in
     if (!auth.isAuthenticated && !auth.inGuestMode) {
         return (
             <div className="flex flex-col gap-52 justify-center items-center bg-[black] min-h-screen">
                 <Title />
                 <div className="flex space-x-4">
-                    {/* 
-            SIGN IN:  Clear any old guestUsername first, and then go to Azure /signin.
-            We use onClick to wipe out localStorage and context, then let the <a> navigate.
-          */}
                     <a
                         href="/signin"
                         onClick={() => {
@@ -36,10 +32,6 @@ export default function Home() {
                         Sign In
                     </a>
 
-                    {/* 
-            GUEST MODE:  If we’re already in guest mode, do not generate a new guest.
-            Otherwise, pick a random “guest_xyz…” ID, store it, and mark inGuestMode=true.
-          */}
                     <button
                         className="border px-52 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                         onClick={() => {
@@ -63,19 +55,11 @@ export default function Home() {
         );
     }
 
-    // --------------------------------------------------
-    // WHEN EITHER: 
-    //   • A REAL AZURE USER IS SIGNED IN  (inGuestMode=false, isAuthenticated=true), OR 
-    //   • A GUEST IS “LOGGED IN”   (inGuestMode=true, isAuthenticated=true)
-    // --------------------------------------------------
+    // Signed in or in guest mode
     return (
         <div className="flex flex-col gap-52 justify-center items-center bg-[black] min-h-screen">
             <Title />
             <div className="flex space-x-4">
-                {/*
-          If we’re inGuestMode, “Sign Out” should clear localStorage + context.
-          Otherwise (a real user), we keep the <a href="/signout"> so Azure can log out.
-        */}
                 {auth.inGuestMode ? (
                     <a
                         onClick={() => {
