@@ -5,6 +5,7 @@ router.get('/', async (req, res) => {
     if (req.session.isAuthenticated) {
         return res.json({
             isAuthenticated: true,
+            inGuestMode: false,
             user: {
                 name: req.session.account.name,
                 username: req.session.account.username
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
         })
     }
 
-    return res.json({ isAuthenticated: false })
+    return res.json({ isAuthenticated: false, inGuestMode: false });
 })
 
 export default router

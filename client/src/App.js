@@ -9,13 +9,27 @@ import Leaderboard from './pages/Leaderboard.js';
 import './App.css';
 
 function App() {
-  const [auth, setAuth] = useState({ isAuthenticated: false, user: null })
+  const [auth, setAuth] = useState({
+    isAuthenticated: false,
+    inGuestMode: false,
+    user: null,
+  });
 
   useEffect(() => {
+    const storedGuest = window.localStorage.getItem('guestUsername');
+    if (storedGuest) {
+      setAuth({
+        isAuthenticated: true,
+        inGuestMode: true,
+        user: { username: storedGuest, name: "Guest" }
+      });
+      return;
+    }
+
     fetch('/api/auth')
       .then(res => res.json())
-      .then(data => setAuth({ ...data }))
-      .catch(() => setAuth({ isAuthenticated: false }))
+      .then(data => setAuth({ ...data, inGuestMode: false }))
+      .catch(() => setAuth({ isAuthenticated: false, inGuestMode: false, user: null }))
   }, [])
 
 
