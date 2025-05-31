@@ -11,7 +11,7 @@ import './App.css';
 function App() {
   const [auth, setAuth] = useState({
     isAuthenticated: false,
-    inGuestMode: null,
+    inGuestMode: false,
     user: null,
   });
 

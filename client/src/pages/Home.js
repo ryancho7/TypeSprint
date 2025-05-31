@@ -16,35 +16,43 @@ export default function Home() {
     }
 
     // not signed in
-    if (!auth.isAuthenticated || auth.inGuestMode) {
-        console.log("not signed in")
+    if (!auth.isAuthenticated && !auth.inGuestMode) {
         return (
             <div className="flex flex-col gap-52 justify-center items-center bg-[black] min-h-screen">
                 <Title />
                 <div className="flex space-x-4">
-                    {/* “Sign In” remains an anchor to /signin */}
+                    {/* 
+            SIGN IN:  Clear any old guestUsername first, and then go to Azure /signin.
+            We use onClick to wipe out localStorage and context, then let the <a> navigate.
+          */}
                     <a
-                        className="border px-52 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                         href="/signin"
+                        onClick={() => {
+                            window.localStorage.removeItem("guestUsername");
+                            setAuth({ isAuthenticated: false, inGuestMode: false, user: null });
+                        }}
+                        className="border px-52 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                     >
                         Sign In
                     </a>
 
-                    {/* “Guest Mode” is now a button */}
+                    {/* 
+            GUEST MODE:  If we’re already in guest mode, do not generate a new guest.
+            Otherwise, pick a random “guest_xyz…” ID, store it, and mark inGuestMode=true.
+          */}
                     <button
                         className="border px-52 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                         onClick={() => {
-                            const guestUsername = makeGuestUsername();
-                            window.localStorage.setItem('guestUsername', guestUsername);
-
-                            setAuth({
-                                isAuthenticated: true,
-                                inGuestMode: true,
-                                user: {
-                                    username: guestUsername,
-                                    name: "Guest"
-                                }
-                            });
+                            // If we’re already a guest, just navigate.
+                            if (!auth.inGuestMode) {
+                                const guestUsername = makeGuestUsername();
+                                window.localStorage.setItem("guestUsername", guestUsername);
+                                setAuth({
+                                    isAuthenticated: true,
+                                    inGuestMode: true,
+                                    user: { username: guestUsername, name: "Guest" },
+                                });
+                            }
                             navigate("/dashboard");
                         }}
                     >
@@ -55,27 +63,34 @@ export default function Home() {
         );
     }
 
-    // after signing in
-    console.log("signed in")
+    // --------------------------------------------------
+    // WHEN EITHER: 
+    //   • A REAL AZURE USER IS SIGNED IN  (inGuestMode=false, isAuthenticated=true), OR 
+    //   • A GUEST IS “LOGGED IN”   (inGuestMode=true, isAuthenticated=true)
+    // --------------------------------------------------
     return (
         <div className="flex flex-col gap-52 justify-center items-center bg-[black] min-h-screen">
             <Title />
             <div className="flex space-x-4">
-                {auth.user?.username?.startsWith("guest_") ? (
-                    <button
-                        className="border px-32 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
+                {/*
+          If we’re inGuestMode, “Sign Out” should clear localStorage + context.
+          Otherwise (a real user), we keep the <a href="/signout"> so Azure can log out.
+        */}
+                {auth.inGuestMode ? (
+                    <a
                         onClick={() => {
-                            window.localStorage.removeItem("guestUsername")
-                            setAuth({ isAuthenticated: false, user: null })
-                            navigate("/")
+                            window.localStorage.removeItem("guestUsername");
+                            setAuth({ isAuthenticated: false, inGuestMode: false, user: null });
                         }}
+                        className="border px-52 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
+                        href="/signin"
                     >
-                        Sign Out
-                    </button>
+                        Sign In
+                    </a>
                 ) : (
                     <a
-                        className="border px-32 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                         href="/signout"
+                        className="border px-32 py-2 rounded-[40px] text-white transition hover:text-[#1E1E1E] hover:bg-white"
                     >
                         Sign Out
                     </a>
@@ -89,5 +104,5 @@ export default function Home() {
                 </button>
             </div>
         </div>
-    )
+    );
 }
