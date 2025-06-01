@@ -21,7 +21,7 @@ export default function Leaderboard() {
         }
 
         getLeaderboard();
-    },[auth.isAuthenticated]);
+    }, [auth.isAuthenticated]);
 
     const getRankStyling = (position) => {
         switch (position) {
@@ -46,7 +46,7 @@ export default function Leaderboard() {
             <h2 className="bg-gradient-to-b from-slate-50 to-neutral-500 bg-clip-text text-transparent font-bold text-[100px] mt-16">
                 Leaderboard
             </h2>
-            
+
             <div className="w-full max-w-4xl mx-auto mt-8">
                 <div className="grid grid-cols-4 gap-4 p-6 mb-4 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl">
                     <div className="text-left font-semibold text-lg text-white/90 tracking-wide">Rank</div>
@@ -54,12 +54,12 @@ export default function Leaderboard() {
                     <div className="text-center font-semibold text-lg text-white/90 tracking-wide">WPM</div>
                     <div className="text-right font-semibold text-lg text-white/90 tracking-wide">Date</div>
                 </div>
-                
-                <div className="space-y-2">
+
+                <div className="space-y-2 mb-16">
                     {leaderboard.map((record, index) => {
                         const position = index + 1;
                         return (
-                            <div 
+                            <div
                                 key={record._id}
                                 className="grid grid-cols-4 gap-4 p-6 bg-gradient-to-r from-white/5 to-white/3 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg hover:bg-gradient-to-r hover:from-white/10 hover:to-white/8 hover:border-white/20 hover:shadow-xl transition-all duration-300 ease-out hover:scale-[1.02] group"
                             >

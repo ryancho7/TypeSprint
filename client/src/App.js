@@ -17,7 +17,7 @@ function AppContent() {
   });
 
   const location = useLocation();
-  
+
   // Pages where navbar should not be shown
   const hideNavbarRoutes = ['/'];
 
@@ -42,15 +42,17 @@ function AppContent() {
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
-      <div className="min-h-screen">
+      <div className="flex flex-col h-screen">
         {shouldShowNavbar && <UpperNav auth={auth} />}
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/race" element={<Race />} />
-          <Route path="/records" element={<Records />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-        </Routes>
+        <main className="flex flex-col flex-1 overflow-auto bg-black">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/race" element={<Race />} />
+            <Route path="/records" element={<Records />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+          </Routes>
+        </main>
       </div>
     </AuthContext.Provider>
   );
