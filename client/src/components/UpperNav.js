@@ -16,6 +16,11 @@ function UpperNav({ auth }) {
         navigate("/records");
     }
 
+    const handleLeaderboardClick = () => {
+        setActive("leaderboard");
+        navigate("/leaderboard");
+    }
+
     const getBtnClass = (btn) =>
         `rounded-[10px] px-6 py-2 flex items-center justify-center transition-colors duration-150 cursor-pointer group
         ${active === btn
@@ -56,6 +61,13 @@ function UpperNav({ auth }) {
                         type="button"
                     >
                         <span className={getTextClass("records")}>RECORDS</span>
+                    </button>
+                    <button
+                        className={getBtnClass("leaderboard")}
+                        onClick={handleLeaderboardClick}
+                        type="button"
+                    >
+                        <span className={getTextClass("leaderboard")}>LEADERBOARD</span>
                     </button>
                 </div>
                 <div className="flex items-center gap-3">
