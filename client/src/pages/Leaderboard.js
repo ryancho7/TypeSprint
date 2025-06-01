@@ -1,13 +1,12 @@
-import { useContext, useState } from 'react'
-import { AuthContext } from '../contexts/authContext.js'
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../contexts/authContext.js';
 
 export default function Leaderboard() {
 
     const { auth } = useContext(AuthContext);
     const [leaderboard, setLeaderboard] = useState([]);
-    const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-    useState(() => {
+    useEffect(() => {
 
         if (!auth.isAuthenticated) return;
 
@@ -17,12 +16,12 @@ export default function Leaderboard() {
                 const data = await res.json();
                 setLeaderboard(data);
             } catch (error) {
-                console.error('Error saving race result:', error);
+                console.error('Error fetching leaderboard:', error);
             }
         }
 
         getLeaderboard();
-    },[auth.user?.username]);
+    },[auth.isAuthenticated]);
 
     const getRankStyling = (position) => {
         switch (position) {
@@ -42,44 +41,11 @@ export default function Leaderboard() {
     }
 
     return (
-        <div className="flex flex-col items-center bg-[black] min-h-screen text-white relative">
-            <button 
-                onClick={() => setShowLogoutPopup(true)}
-                className="absolute top-6 right-6 w-12 h-12 bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-md border border-white/20 rounded-full hover:bg-gradient-to-r hover:from-white/30 hover:to-white/20 hover:border-white/40 transition-all duration-300 flex items-center justify-center group"
-            >
-                <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                    {auth.user?.username?.charAt(0).toUpperCase()}
-                </div>
-            </button>
-            {showLogoutPopup && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-2xl p-6 shadow-2xl max-w-sm w-full mx-4">
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">
-                                {auth.user?.username?.charAt(0).toUpperCase()}
-                            </div>
-                            <h3 className="text-xl font-semibold text-white mb-2">{auth.user?.username}</h3>
-                            <p className="text-white/60 mb-6">Are you sure you want to log out?</p>
-                            <div className="flex gap-3">
-                                <button 
-                                    onClick={() => setShowLogoutPopup(false)}
-                                    className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white transition-all duration-200"
-                                >
-                                    Cancel
-                                </button>
-                                <a 
-                                    href="/signout"
-                                    className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg text-white font-semibold transition-all duration-200 text-center no-underline"
-                                >
-                                    Log Out
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+        <div className="flex flex-col items-center bg-black min-h-screen text-white">
 
-            <h2 className="bg-gradient-to-b from-slate-50 to-neutral-500 bg-clip-text text-transparent font-bold text-[100px] mt-16">Leaderboard</h2>
+            <h2 className="bg-gradient-to-b from-slate-50 to-neutral-500 bg-clip-text text-transparent font-bold text-[100px] mt-16">
+                Leaderboard
+            </h2>
             
             <div className="w-full max-w-4xl mx-auto mt-8">
                 <div className="grid grid-cols-4 gap-4 p-6 mb-4 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl">
@@ -88,6 +54,7 @@ export default function Leaderboard() {
                     <div className="text-center font-semibold text-lg text-white/90 tracking-wide">WPM</div>
                     <div className="text-right font-semibold text-lg text-white/90 tracking-wide">Date</div>
                 </div>
+                
                 <div className="space-y-2">
                     {leaderboard.map((record, index) => {
                         const position = index + 1;
