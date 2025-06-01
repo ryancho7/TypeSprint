@@ -34,10 +34,10 @@ function LowerNav() {
                 onClick={() => navigate("/race")}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className="w-[350px] h-[62px] rounded-[10px] border border-lime-300 flex items-center justify-center transition-colors duration-150 group overflow-hidden"
+                className="w-[350px] h-[62px] rounded-[10px] border border-cyan-400 flex items-center justify-center transition-colors duration-150 group overflow-hidden"
             >
-                <span className={`w-full h-full flex items-center justify-center rounded-[10px] transition-colors duration-150 bg-transparent group-hover:bg-[#B8FF01] ${isHovered ? 'bg-[#B8FF01]' : ''}`}>
-                    <span className={`text-[50px] font-extrabold leading-[120%] tracking-[-0.03em] transition-colors duration-150 ${isHovered ? 'text-black' : 'text-white'}`}>
+                <span className={`w-full h-full flex items-center justify-center rounded-[10px] transition-colors duration-150 bg-transparent group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-blue-500 ${isHovered ? 'bg-gradient-to-r from-cyan-400 to-blue-500' : ''}`}>
+                    <span className={`text-[50px] font-extrabold leading-[120%] tracking-[-0.03em] transition-colors duration-150 ${isHovered ? 'text-white' : 'text-white'}`}>
                         {isHovered ? "START" : "READY"}
                     </span>
                 </span>
