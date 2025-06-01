@@ -38,11 +38,49 @@ async function saveRaceResult(username, wpm, finishingPosition) {
     }
 }
 
+// helper room clean up function -> empty rooms should be deleted
+function cleanupRace(raceId) {
+    if(races[raceId] && Object.keys(races[raceId].participants).length === 0) {
+        delete races[raceId];
+        console.log(`Race ${raceId} has been cleaned up`);
+    }
+}
+
+// helper function for resetting race/starting new race when all participants have finished
+function resetRaceIfNeeded(raceId) {
+    if(!races[raceId]) return;
+
+    const race = races[raceId];
+    const activeParticipants = Object.keys(race.participants);
+    
+    // check if all participants have finished the race -> use ws acurate finish value
+    const allFinished = activeParticipants.length > 0 && activeParticipants.every(socketId => race.participants[socketId].accurateFinish);
+    if(allFinished) {
+        console.log(`All active participants have finished: Resetting race ${raceId}`);
+        // reset the state to default vals
+        race.startTime = null;
+        race.finishOrder = [];
+        // reset all participants
+        Object.values(race.participants).forEach(participant => {
+            participant.progress = 0;
+            participant.accurateFinish = false;
+            participant.startTime = null;
+            participant.endTime = null;
+        });
+    }
+}
+
+
+
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
 
     socket.on('joinRace', async ({ raceId, username }) => {
         socket.join(raceId);
+
+        // reset races if needed to avoid persisting state bugs
+        resetRaceIfNeeded(raceId);
+
         if (!races[raceId]) {
             const sentenceText = await fetchRandomSentence();
       
@@ -69,6 +107,8 @@ io.on('connection', (socket) => {
         const race = races[raceId];
         const participant = race.participants[socket.id];
 
+        if(!participant) return;
+
         // time start on first keystroke
         if(!participant.startTime && progress > 0) {
             participant.startTime = Date.now();
@@ -83,8 +123,10 @@ io.on('connection', (socket) => {
         if(accurateFinish && !participant.accurateFinish) {
             participant.accurateFinish = true;
             participant.endTime = Date.now();
-            // update finished order
-            race.finishOrder.push(socket.id);
+            // update finished order but only add if not duplicate
+            if(!race.finishOrder.includes(socket.id)) {
+                race.finishOrder.push(socket.id);
+            }
             const finishingPosition = race.finishOrder.length;
             // calculate wpm based on start and end time
             const min = (participant.endTime - participant.startTime) / (1000 * 60);
@@ -114,12 +156,26 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnecting', () => {
+        console.log('client disconnecting:', socket.id);
         for (const room of socket.rooms) {
             if (races[room]?.participants) {
-                delete races[room].participants[socket.id];
+                // find the specific participant
+                const participant = races[room].participants[socket.id];
+                if(participant) {
+                    console.log(`Removing ${participant.username} from race ${room}`);
+                    // remove participant from room
+                    delete races[room].participants[socket.id];
+                    // remove them from finishing order
+                    const index = races[room].finishOrder.indexOf(socket.id);
+                    if(index > -1) {
+                        races[room].finishOrder.splice(index, 1);
+                    }
+                }
                 io.in(room).emit('progressUpdate', {
                     participants: races[room].participants
                 });
+                // cleanup room
+                cleanupRace(room);
             }
         }
     });
