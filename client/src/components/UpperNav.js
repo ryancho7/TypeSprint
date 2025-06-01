@@ -1,11 +1,10 @@
-// src/components/UpperNav.js
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function UpperNav({ auth }) {
     const location = useLocation();
     const navigate = useNavigate();
-    
+
     // Check if we're on the race screen
     const isRaceScreen = location.pathname === "/race";
 
@@ -55,7 +54,7 @@ function UpperNav({ auth }) {
     if (isRaceScreen) {
         return (
             <nav className="bg-black pt-10 px-16 w-full relative z-10">
-                <button 
+                <button
                     onClick={() => navigate("/dashboard")}
                     className="px-6 py-3 rounded-xl font-extrabold text-xl tracking-tight
                     transition-all duration-200 ease-out
