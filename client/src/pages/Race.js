@@ -10,7 +10,23 @@ export default function Race() {
     const [progressMap, setProgressMap] = useState({});  // { socketId: charsTyped }
     const [myId, setMyId] = useState(null);
     const [raceResults, setRaceResults] = useState([]);
+    const [timer, setTimer] = useState(0); // Starting from 0 and counting up
     const raceId = 'room123';
+
+    // Timer effect - count up from 0
+    useEffect(() => {
+        let interval;
+        const isFinished = progressMap[myId]?.accurateFinish === true;
+        // Start timer when user has started typing
+        const hasStartedTyping = input.length > 0;
+        
+        if (hasStartedTyping && !isFinished) {
+            interval = setInterval(() => {
+                setTimer(prevTimer => prevTimer + 0.1);
+            }, 100);
+        }
+        return () => clearInterval(interval);
+    }, [input, progressMap, myId]);
 
     useEffect(() => {
         if (!auth.isAuthenticated) return;
@@ -37,6 +53,7 @@ export default function Race() {
         // Race start
         s.on('start', ({ text }) => {
             setText(text);
+            setTimer(0);
         });
 
         // Anytime any user's progress updates
@@ -84,9 +101,6 @@ export default function Race() {
         });
     };
 
-    // finished check
-    const isFinished = progressMap[myId]?.accurateFinish === true;
-
     // for determining correct character
     const textCheckArr = text.split('');
 
@@ -117,50 +131,17 @@ export default function Race() {
                     Type Sprint
                 </h1>
 
-                <div className="mb-8">
-                    <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-8">
-                        <div className="font-mono text-lg leading-relaxed whitespace-pre-wrap text-white/90">
-                            {renderedText}
+                {/* First box: Live Progress */}
+                <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 mb-12">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-2xl font-bold text-white">Live Progress</h3>
+                        <div className="flex items-center">
+                            <span className="text-cyan-400 text-4xl font-mono font-bold">
+                                {`${Math.floor(timer / 60).toString().padStart(2, '0')}:${Math.floor(timer % 60).toString().padStart(2, '0')}`}
+                            </span>
+                            <span className="text-white text-xl ml-2">sec</span>
                         </div>
                     </div>
-                </div>
-
-                <div className="mb-8 bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-1">
-                    <textarea
-                        rows={5}
-                        value={input}
-                        onChange={handleChange}
-                        placeholder="Start typing here…"
-                        disabled={isFinished}
-                        className="w-full bg-transparent rounded-xl p-6 font-mono text-lg text-white placeholder-white/40 focus:outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                </div>
-
-                {isFinished && (
-                    <div className="mb-8">
-                        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg border border-green-400/30 rounded-xl shadow-xl p-6">
-                            <div className="text-center">
-                                <h3 className="text-3xl font-bold text-green-400 mb-4">🎉 Race Complete!</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-white/5 rounded-lg p-4">
-                                        <p className="text-white/70 text-sm mb-1">Your WPM</p>
-                                        <p className="text-2xl font-bold text-cyan-400">{myResult?.wpm || 'Calculating...'}</p>
-                                    </div>
-                                    <div className="bg-white/5 rounded-lg p-4">
-                                        <p className="text-white/70 text-sm mb-1">Final Position</p>
-                                        <p className="text-2xl font-bold text-yellow-400">#{myResult?.finishingPosition || '...'}</p>
-                                    </div>
-                                </div>
-                                <p className="text-white/60 text-sm mt-4">
-                                    Waiting for {Object.values(progressMap).filter(p => !p.accurateFinish).length} other(s) to finish...
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6">
-                    <h3 className="text-2xl font-bold text-white mb-6 text-center">Live Progress</h3>
                     
                     <div className="space-y-3">
                         {Object.entries(progressMap).map(([id, { progress, accurateFinish, username }]) => {
@@ -215,6 +196,48 @@ export default function Race() {
                         </div>
                     )}
                 </div>
+
+                {/* Second box: Text to type */}
+                <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-8 mb-12">
+                    <div className="font-mono text-lg leading-relaxed whitespace-pre-wrap text-white/90">
+                        {renderedText}
+                    </div>
+                </div>
+
+                {/* Third box: Input area */}
+                <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-1 mb-12">
+                    <textarea
+                        rows={5}
+                        value={input}
+                        onChange={handleChange}
+                        placeholder="Start typing here…"
+                        disabled={progressMap[myId]?.accurateFinish === true}
+                        className="w-full bg-transparent rounded-xl p-6 font-mono text-lg text-white placeholder-white/40 focus:outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    />
+                </div>
+
+                {progressMap[myId]?.accurateFinish === true && (
+                    <div className="mb-8">
+                        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg border border-green-400/30 rounded-xl shadow-xl p-6">
+                            <div className="text-center">
+                                <h3 className="text-3xl font-bold text-green-400 mb-4">🎉 Race Complete!</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <p className="text-white/70 text-sm mb-1">Your WPM</p>
+                                        <p className="text-2xl font-bold text-cyan-400">{myResult?.wpm || 'Calculating...'}</p>
+                                    </div>
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <p className="text-white/70 text-sm mb-1">Final Position</p>
+                                        <p className="text-2xl font-bold text-yellow-400">#{myResult?.finishingPosition || '...'}</p>
+                                    </div>
+                                </div>
+                                <p className="text-white/60 text-sm mt-4">
+                                    Waiting for {Object.values(progressMap).filter(p => !p.accurateFinish).length} other(s) to finish...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

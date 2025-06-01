@@ -5,6 +5,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 function UpperNav({ auth }) {
     const location = useLocation();
     const navigate = useNavigate();
+    
+    // Check if we're on the race screen
+    const isRaceScreen = location.pathname === "/race";
 
     // Active tab determination based on current path
     const activeId = (() => {
@@ -45,6 +48,22 @@ function UpperNav({ auth }) {
             <div className="bg-black text-white p-16 text-center">
                 <span className="text-xl">Sign in or use guest mode</span>
             </div>
+        );
+    }
+
+    // Nav only for race screen: Displaying "BACK TO LOBBY" button
+    if (isRaceScreen) {
+        return (
+            <nav className="bg-black pt-10 px-16 w-full relative z-10">
+                <button 
+                    onClick={() => navigate("/dashboard")}
+                    className="px-6 py-3 rounded-xl font-extrabold text-xl tracking-tight
+                    transition-all duration-200 ease-out
+                    bg-transparent text-white border border-white hover:bg-white hover:text-black"
+                >
+                    BACK TO DASHBOARD
+                </button>
+            </nav>
         );
     }
 
