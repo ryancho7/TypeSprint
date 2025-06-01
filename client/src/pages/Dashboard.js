@@ -4,7 +4,7 @@ import Title from "../components/Title.js"
 export default function Dashboard() {
 
     return (
-        <div className="relative min-h-screen bg-black flex flex-col">
+        <div className="relative flex flex-col flex-1 bg-black">
             <div className="flex-1 flex flex-col justify-center items-center">
                 <Title />
             </div>
