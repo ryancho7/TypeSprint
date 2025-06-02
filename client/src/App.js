@@ -7,6 +7,7 @@ import Race from './pages/Race.js';
 import Records from './pages/Records.js';
 import Leaderboard from './pages/Leaderboard.js';
 import UpperNav from './components/UpperNav.js';
+import FriendsModal from './components/FriendsModal.js';
 import './App.css';
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
 
   // State for friends modal (lifted up to App level)
   const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [page, setPage] = useState(1);  
 
   const location = useLocation();
 
@@ -55,17 +57,21 @@ function AppContent() {
         <main className="flex flex-col flex-1 overflow-auto bg-black">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={
-              <Dashboard 
-                showFriendsModal={showFriendsModal}
-                setShowFriendsModal={setShowFriendsModal}
-              />
-            } />
+            <Route path="/dashboard" element={<Dashboard />} /> 
             <Route path="/race" element={<Race />} />
             <Route path="/records" element={<Records />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
+        
+        {/* FriendsModal here - appear from any page */}
+        <FriendsModal
+          open={showFriendsModal}
+          onClose={() => setShowFriendsModal(false)}
+          page={page}
+          totalPages={1}
+          onPageChange={(p) => setPage(p)}
+        />
       </div>
     </AuthContext.Provider>
   );
