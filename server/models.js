@@ -20,7 +20,14 @@ const raceHistorySchema = new mongoose.Schema({
     date: Date,
 });
 
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+});
+
 models.Sentence = mongoose.model('Sentence', sentenceSchema);
 models.RaceHistory = mongoose.model('RaceHistory', raceHistorySchema);
+models.User = mongoose.model('User', userSchema);
 
 export default models

@@ -43,7 +43,6 @@ function AppContent() {
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
       <div className="min-h-screen">
-        {shouldShowNavbar && <UpperNav auth={auth} />}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />

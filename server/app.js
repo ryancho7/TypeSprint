@@ -24,7 +24,6 @@ const authConfig = {
         authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
         clientSecret: process.env.AZURE_CLIENT_SECRET,
         redirectUri: "/redirect"
-        // redirectUri: "https://typesprint.ryancho.me/redirect"
     },
     system: {
         loggerOptions: {
@@ -63,25 +62,45 @@ app.use(authProvider.interactionErrorHandler());
 // auth endpoints
 app.get('/signin', (req, res, next) => {
     return req.authContext.login({
-        postLoginRedirectUri: "/", // redirect here after login
+        postLoginRedirectUri: "/",
     })(req, res, next);
 });
 
 app.get('/signout', (req, res, next) => {
     return req.authContext.logout({
-        postLogoutRedirectUri: "/", // redirect here after logout
+        postLogoutRedirectUri: "/",
     })(req, res, next);
 });
 // ** END AUTH **
+
+// Session middleware
+app.use((req, res, next) => {
+    const acct = req.authContext?.account?.idTokenClaims;
+    
+    if (acct && !req.session.isAuthenticated) {
+        req.session.isAuthenticated = true;
+        req.session.account = {
+            email: acct.preferred_username || acct.email, 
+            username: acct.name,
+            name: acct.name,
+        };
+        
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+            }
+            next();
+        });
+    } else {
+        next();
+    }
+});
 
 // Models
 app.use((req, res, next) => {
     req.models = models
     next();
 });
-
-// API
-app.use('/api', apiRouter);
 
 // API
 app.use('/api', apiRouter);
