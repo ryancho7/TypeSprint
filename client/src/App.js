@@ -16,6 +16,9 @@ function AppContent() {
     user: null,
   });
 
+  // State for friends modal (lifted up to App level)
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+
   const location = useLocation();
 
   // Pages where navbar should not be shown
@@ -43,11 +46,21 @@ function AppContent() {
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
       <div className="flex flex-col h-screen">
-        {shouldShowNavbar && <UpperNav auth={auth} />}
+        {shouldShowNavbar && (
+          <UpperNav 
+            auth={auth} 
+            onFriendsClick={() => setShowFriendsModal(true)} 
+          />
+        )}
         <main className="flex flex-col flex-1 overflow-auto bg-black">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <Dashboard 
+                showFriendsModal={showFriendsModal}
+                setShowFriendsModal={setShowFriendsModal}
+              />
+            } />
             <Route path="/race" element={<Race />} />
             <Route path="/records" element={<Records />} />
             <Route path="/leaderboard" element={<Leaderboard />} />

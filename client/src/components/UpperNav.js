@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function UpperNav({ auth }) {
+function UpperNav({ auth, onFriendsClick }) {  // Added onFriendsClick prop
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -38,9 +38,12 @@ function UpperNav({ auth }) {
 
     // Handle a click on any nav item by navigating to its path
     const handleNavClick = (item) => {
-        navigate(item.path);
+        if (item.id === "friends" && onFriendsClick) {
+            onFriendsClick();
+        } else {
+            navigate(item.path);
+        }
     };
-
 
     if (!auth.isAuthenticated) {
         return (

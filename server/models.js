@@ -20,6 +20,13 @@ const raceHistorySchema = new mongoose.Schema({
     date: Date,
 });
 
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+});
+
+models.User = mongoose.model('User', userSchema);
 models.Sentence = mongoose.model('Sentence', sentenceSchema);
 models.RaceHistory = mongoose.model('RaceHistory', raceHistorySchema);
 
