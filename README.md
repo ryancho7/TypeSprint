@@ -26,6 +26,8 @@ Given these motivations, we're excited to build this application because it's te
 
 ![Data flow Diagram](./diagrams/dataflow.png)
 
+![Websocket Flow Diagram](./diagrams/ws.jpg)
+
 ## Summary Tables for User Stories
 
 | Priority | User              | Description                                                                                             | Technical Implementation                                                                                                 |
