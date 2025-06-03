@@ -2,6 +2,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import sessions from 'express-session';
 import logger from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import apiRouter from './routes/api/api.js'
@@ -18,7 +21,7 @@ const authConfig = {
         authority: `https://login.microsoftonline.com/${process.env.AZURE_TENANT_ID}`,
         clientSecret: process.env.AZURE_CLIENT_SECRET,
         redirectUri: "/redirect"
-        // redirectUri: "https://typesprint.ryancho.me/redirect"
+        // redirectUri: "https://typesprint-gxk8.onrender.com/redirect"
     },
     system: {
         loggerOptions: {
@@ -77,14 +80,25 @@ app.use((req, res, next) => {
 // API
 app.use('/api', apiRouter);
 
-// PROXY
-app.use('/*', createProxyMiddleware({
-    // for windows
-    target: 'http://127.0.0.1:4000',
-    // target: 'http://localhost:4000',
-    pathRewrite: (path, req) => req.baseUrl,
-    changeOrigin: true,
-    ws: true
-}))
+// Serve static files from `public/` in production
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// Serve index.html for any unknown route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+// PROXY -> only for dev
+// app.use('/*', createProxyMiddleware({
+//     // for windows
+//     target: 'http://127.0.0.1:4000',
+//     // target: 'http://localhost:4000',
+//     pathRewrite: (path, req) => req.baseUrl,
+//     changeOrigin: true,
+//     ws: true
+// }))
 
 export default app;

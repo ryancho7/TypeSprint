@@ -38,7 +38,7 @@ export default function Race() {
         if (!auth.isAuthenticated) return;
 
         // Connect
-        const s = io('http://localhost:3000', {
+        const s = io({
             withCredentials: true
         });
         setSocket(s);

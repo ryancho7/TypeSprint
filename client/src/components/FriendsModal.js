@@ -31,7 +31,7 @@ export default function FriendsModal({
       
       try {
         const res = await fetch(
-          'http://localhost:3000/api/users/all',
+          '/api/users/all',
           {
             method: 'GET',
             credentials: 'include',
@@ -89,7 +89,7 @@ export default function FriendsModal({
     setInviteStatus((prev) => ({ ...prev, [targetId]: 'sending' }));
     try {
       const res = await fetch(
-        `http://localhost:3000/api/users/invite/${targetId}`,
+        `/api/users/invite/${targetId}`,
         {
           method: 'POST',
           credentials: 'include',

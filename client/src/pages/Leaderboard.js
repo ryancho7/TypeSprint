@@ -13,7 +13,7 @@ export default function Leaderboard() {
 
         async function getLeaderboard() {
             try {
-                const res = await fetch('http://localhost:3000/api/leaderboard');
+                const res = await fetch('/api/leaderboard');
                 const data = await res.json();
                 setLeaderboard(data);
             } catch (error) {
