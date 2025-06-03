@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/authContext.js';
 import { io } from 'socket.io-client';
 import LiveProgress from '../components/RaceLiveProgress.js';
@@ -8,6 +9,12 @@ import Results from '../components/RaceResults.js';
 
 export default function Race() {
     const { auth } = useContext(AuthContext);
+    const location = useLocation();
+    
+    // take room info from url parameter 
+    const urlParams = new URLSearchParams(location.search);
+    const roomFromUrl = urlParams.get('room');
+    
     const [socket, setSocket] = useState(null);
     const [text, setText] = useState('');
     const [input, setInput] = useState('');
@@ -19,7 +26,9 @@ export default function Race() {
     const [countdown, setCountdown] = useState(null);
     const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState('');
-    const raceId = 'room123';
+    
+    // raceId is either from the URL or a default value
+    const raceId = roomFromUrl || 'room123';
 
     // Timer effect - count up from 0
     useEffect(() => {
@@ -97,7 +106,7 @@ export default function Race() {
         return () => {
             s.disconnect();
         };
-    }, [auth.isAuthenticated, auth.user?.username]);
+    }, [auth.isAuthenticated, auth.user?.username, raceId]); 
 
     if (!auth.isAuthenticated && !auth.user) {
         return (
@@ -161,6 +170,16 @@ export default function Race() {
                 <h1 className="bg-gradient-to-b from-slate-50 to-neutral-500 bg-clip-text text-transparent font-bold text-[80px] text-center mb-12">
                     Type Sprint
                 </h1>
+                
+                {/* URL room information added */}
+                {roomFromUrl && (
+                    <div className="text-center mb-6">
+                        <div className="inline-block bg-lime-300/20 border border-lime-300/30 rounded-lg px-4 py-2">
+                            <span className="text-lime-300 font-semibold">Room: {roomFromUrl}</span>
+                        </div>
+                    </div>
+                )}
+                
                 <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 mb-8">
                     {raceStatus === 'waiting' && (
                         <div className="text-center">

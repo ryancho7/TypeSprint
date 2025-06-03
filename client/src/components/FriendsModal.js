@@ -16,6 +16,37 @@ export default function FriendsModal({
   const [loading, setLoading] = useState(false);
   const [inviteStatus, setInviteStatus] = useState({}); 
   const [clicked, setClicked] = useState(false);
+  
+  // Room sharing state
+  const [roomCode, setRoomCode] = useState('');
+  const [roomLink, setRoomLink] = useState('');
+
+  // Generate new room code every time modal opens
+  useEffect(() => {
+    if (open && auth.isAuthenticated) {
+      const newRoomCode = generateRoomCode();
+      setRoomCode(newRoomCode);
+      setRoomLink(`${window.location.origin}/race?room=${newRoomCode}`);
+      // Reset invite statuses when new room is created
+      setInviteStatus({});
+    }
+  }, [open, auth]);
+
+  const generateRoomCode = () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    let result = 'ROOM-';
+    
+    // Add 3 letters + 3 numbers
+    for (let i = 0; i < 3; i++) {
+      result += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    for (let i = 0; i < 3; i++) {
+      result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    }
+    
+    return result;
+  };
 
   useEffect(() => {
     if (!open || !auth.isAuthenticated) {
@@ -82,28 +113,32 @@ export default function FriendsModal({
     }
   }, [searchTerm, friendList]);
 
-  // Handler to invite a user
+  // Handler to copy room link (replaces invite function)
   const handleInvite = async (targetId) => {
-    if (inviteStatus[targetId] === 'sending') return;
+    if (inviteStatus[targetId] === 'copied') return;
 
-    setInviteStatus((prev) => ({ ...prev, [targetId]: 'sending' }));
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/users/invite/${targetId}`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        }
-      );
-      if (!res.ok) {
-        console.error('Invite failed:', await res.text());
-        setInviteStatus((prev) => ({ ...prev, [targetId]: 'error' }));
-        return;
-      }
-      setInviteStatus((prev) => ({ ...prev, [targetId]: 'sent' }));
+      await navigator.clipboard.writeText(roomLink);
+      setInviteStatus((prev) => ({ ...prev, [targetId]: 'copied' }));
+      
+      // Reset status after 3 seconds
+      setTimeout(() => {
+        setInviteStatus((prev) => ({ ...prev, [targetId]: null }));
+      }, 3000);
     } catch (err) {
-      console.error('Error sending invite:', err);
-      setInviteStatus((prev) => ({ ...prev, [targetId]: 'error' }));
+      console.error('Failed to copy:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = roomLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setInviteStatus((prev) => ({ ...prev, [targetId]: 'copied' }));
+      
+      setTimeout(() => {
+        setInviteStatus((prev) => ({ ...prev, [targetId]: null }));
+      }, 3000);
     }
   };
 
@@ -122,6 +157,10 @@ export default function FriendsModal({
     }
   };
 
+  const joinMyOwnRoom = () => {
+    window.location.href = `/race?room=${roomCode}`;
+  };
+
   if (!open) return null;
 
   const bgClick = (e) => {
@@ -138,6 +177,22 @@ export default function FriendsModal({
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-3xl font-semibold">Invite Friends</h2>
           <button onClick={onClose} className="text-3xl leading-none">&times;</button>
+        </div>
+
+        {/* Room Info Section */}
+        <div className="mb-4 p-4 bg-black/30 rounded-lg border border-white/20">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-300">Room Code: <span className="text-lime-300 font-bold">{roomCode}</span></p>
+              <p className="text-xs text-gray-400 break-all">{roomLink}</p>
+            </div>
+            <button
+              onClick={joinMyOwnRoom}
+              className="px-4 py-2 bg-lime-300 text-black rounded-md font-medium hover:bg-lime-400 transition-all duration-150"
+            >
+              Join Room
+            </button>
+          </div>
         </div>
 
         <div className="flex items-start gap-4 mb-6">
@@ -209,7 +264,7 @@ export default function FriendsModal({
                 Showing {filteredFriendList.length} of {friendList.length} players
               </p>
             )}
-            <ul className="space-y-6 overflow-y-auto max-h-[340px] pr-2">
+            <ul className="space-y-6 overflow-y-auto max-h-[270px] pr-2">
               {filteredFriendList.map((user, index) => (
                 <li
                   key={user._id || index}
@@ -225,20 +280,15 @@ export default function FriendsModal({
                     className={`
                       px-6 py-2 rounded-md border transition font-medium
                       ${
-                        inviteStatus[user._id] === 'sent'
+                        inviteStatus[user._id] === 'copied'
                           ? 'border-green-400 bg-green-400 text-black'
-                          : inviteStatus[user._id] === 'sending'
-                          ? 'border-gray-400 bg-gray-400 text-gray-700 cursor-not-allowed'
                           : 'border-lime-300 hover:bg-lime-300 hover:text-black'
                       }
                     `}
                     onClick={() => handleInvite(user._id)}
-                    disabled={inviteStatus[user._id] === 'sending' || inviteStatus[user._id] === 'sent'}
                   >
-                    {inviteStatus[user._id] === 'sent'
-                      ? 'Invited'
-                      : inviteStatus[user._id] === 'sending'
-                      ? 'Sending…'
+                    {inviteStatus[user._id] === 'copied'
+                      ? 'Link Copied!'
                       : 'Invite'}
                   </button>
                 </li>
@@ -247,7 +297,7 @@ export default function FriendsModal({
           </div>
         )}
 
-        <div className="flex justify-center gap-2 mt-6">
+        <div className="flex justify-center gap-2 mt-4">
           <button
             disabled={page === 1}
             className="w-8 h-8 border rounded disabled:opacity-30"
