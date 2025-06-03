@@ -9,7 +9,7 @@ const io = new Server(server, {
 });
 
 // simple in-memory game state
-const races = {}; // { raceId: { text, participants: { socketId: progress } } }
+const races = {}; // { raceId: { text, participants: { socketId: progress }, status, startTime, finishOrder } }
 
 async function fetchRandomSentence() {
     try {
@@ -53,24 +53,50 @@ function resetRaceIfNeeded(raceId) {
     const race = races[raceId];
     const activeParticipants = Object.keys(race.participants);
     
-    // check if all participants have finished the race -> use ws acurate finish value
+    // check if all participants have finished the race -> use ws accurate finish value
     const allFinished = activeParticipants.length > 0 && activeParticipants.every(socketId => race.participants[socketId].accurateFinish);
     if(allFinished) {
         console.log(`All active participants have finished: Resetting race ${raceId}`);
-        // reset the state to default vals
+        // reset the race to waiting state
+        race.status = 'waiting';
         race.startTime = null;
         race.finishOrder = [];
+        race.countdownStart = null;
         // reset all participants
         Object.values(race.participants).forEach(participant => {
             participant.progress = 0;
             participant.accurateFinish = false;
-            participant.startTime = null;
             participant.endTime = null;
         });
+        // emit new state
+        io.in(raceId).emit('raceState', race);
     }
 }
 
-
+// countdown and race start logic
+function startCountdown(raceId) {
+    if (!races[raceId] || races[raceId].status !== 'waiting') return;
+    
+    const race = races[raceId];
+    race.status = 'countdown';
+    race.countdownStart = Date.now();
+    
+    let countdown = 3;
+    io.in(raceId).emit('countdown', { count: countdown });
+    // countdown until 0 -> update race status and start race
+    const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            io.in(raceId).emit('countdown', { count: countdown });
+        } else {
+            clearInterval(countdownInterval);
+            // Start the actual race
+            race.status = 'racing';
+            race.startTime = Date.now();
+            io.in(raceId).emit('raceStarted', { text: race.text });
+        }
+    }, 1000);
+}
 
 io.on('connection', (socket) => {
     console.log('client connected:', socket.id);
@@ -87,35 +113,60 @@ io.on('connection', (socket) => {
             races[raceId] = {
                 text: sentenceText,
                 participants: {},
+                status: 'waiting',
                 startTime: null,
-                finishOrder: []
+                finishOrder: [],
+                countdownStart: null
             };
         }
+        
         races[raceId].participants[socket.id] = {
             progress: 0,
             accurateFinish: false,
             username: username || socket.id,
-            startTime: null,
-            endTime: null
+            endTime: null,
+            ready: false
         };
+        
         io.in(raceId).emit('raceState', races[raceId]);
+    });
+
+    socket.on('playerReady', ({ raceId }) => {
+        if (!races[raceId] || races[raceId].status !== 'waiting') return;
+        
+        const participant = races[raceId].participants[socket.id];
+        if (participant) {
+            // handle server side ready state
+            participant.ready = !participant.ready;
+            io.in(raceId).emit('raceState', races[raceId]);
+        }
+    });
+
+    socket.on('startRace', ({ raceId }) => {
+        if (!races[raceId] || races[raceId].status !== 'waiting') return;
+        
+        const race = races[raceId];
+        const participants = Object.values(race.participants);
+        const readyCount = participants.filter(p => p.ready).length;
+        
+        // all players need to be ready
+        if (readyCount < participants.length) {
+            socket.emit('error', { message: 'All players must be ready to start' });
+            return;
+        }
+        // if everyone is ready, start the countdown
+        startCountdown(raceId);
     });
 
     socket.on('updateProgress', ({ raceId, progress, accurateFinish }) => {
         if (!races[raceId]) return;
 
         const race = races[raceId];
+        
+        if (race.status !== 'racing') return;
+        
         const participant = race.participants[socket.id];
-
         if(!participant) return;
-
-        // time start on first keystroke
-        if(!participant.startTime && progress > 0) {
-            participant.startTime = Date.now();
-            if(!race.startTime) {
-                race.startTime = Date.now();
-            }
-        }
 
         participant.progress = progress;
         
@@ -129,7 +180,7 @@ io.on('connection', (socket) => {
             }
             const finishingPosition = race.finishOrder.length;
             // calculate wpm based on start and end time
-            const min = (participant.endTime - participant.startTime) / (1000 * 60);
+            const min = (participant.endTime - race.startTime) / (1000 * 60);
             const wordCount = race.text.split(' ').length;
             const wpm = Math.round(wordCount / min);
             // save result
@@ -142,17 +193,10 @@ io.on('connection', (socket) => {
                 finishingPosition
             });
         }
-
+        // update all progress to all clients
         io.in(raceId).emit('progressUpdate', {
             participants: races[raceId].participants
         });
-    });
-
-    socket.on('startRace', ({ raceId }) => {
-        if (races[raceId]) {
-            races[raceId].startTime = Date.now();
-            io.in(raceId).emit('start', { text: races[raceId].text });
-        }
     });
 
     socket.on('disconnecting', () => {
