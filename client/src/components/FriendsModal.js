@@ -1,25 +1,14 @@
-import { useRef, useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../contexts/authContext.js';
 
 export default function FriendsModal({
   open,
   onClose,
-  page,
-  totalPages,
-  onPageChange,
 }) {
-  const inputRef = useRef(null);
   const { auth } = useContext(AuthContext);
-  const [friendList, setFriendList] = useState([]);
-  const [filteredFriendList, setFilteredFriendList] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [inviteStatus, setInviteStatus] = useState({}); 
-  const [clicked, setClicked] = useState(false);
-  
-  // Room sharing state
   const [roomCode, setRoomCode] = useState('');
   const [roomLink, setRoomLink] = useState('');
+  const [copyStatus, setCopyStatus] = useState(''); // 'copied', 'error', ''
 
   // Generate new room code every time modal opens
   useEffect(() => {
@@ -27,8 +16,7 @@ export default function FriendsModal({
       const newRoomCode = generateRoomCode();
       setRoomCode(newRoomCode);
       setRoomLink(`${window.location.origin}/race?room=${newRoomCode}`);
-      // Reset invite statuses when new room is created
-      setInviteStatus({});
+      setCopyStatus(''); // Reset copy status
     }
   }, [open, auth]);
 
@@ -48,82 +36,14 @@ export default function FriendsModal({
     return result;
   };
 
-  useEffect(() => {
-    if (!open || !auth.isAuthenticated) {
-      setFriendList([]);
-      setFilteredFriendList([]);
-      setSearchTerm('');
-      return;
-    }
-
-    const controller = new AbortController();
-    async function fetchAllUsers() {
-      setLoading(true);
-      
-      try {
-        const res = await fetch(
-          'http://localhost:3000/api/users/all',
-          {
-            method: 'GET',
-            credentials: 'include',
-            signal: controller.signal,
-            cache: 'no-cache',
-            headers: {
-              'Cache-Control': 'no-cache'
-            }
-          }
-        );
-        
-        if (!res.ok) {
-          console.error('Failed to load users:', res.status, res.statusText);
-          setFriendList([]);
-          setFilteredFriendList([]);
-          return;
-        }
-        
-        const data = await res.json();
-        setFriendList(data);
-        setFilteredFriendList(data);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error('Error fetching users:', err);
-        }
-        setFriendList([]);
-        setFilteredFriendList([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAllUsers();
-    return () => controller.abort();
-  }, [open, auth]);
-
-  // Filter friends list when search term changes
-  useEffect(() => {
-    if (!searchTerm) {
-      setFilteredFriendList(friendList);
-    } else {
-      const filtered = friendList.filter(user => 
-        user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredFriendList(filtered);
-    }
-  }, [searchTerm, friendList]);
-
-  // Handler to copy room link (replaces invite function)
-  const handleInvite = async (targetId) => {
-    if (inviteStatus[targetId] === 'copied') return;
-
+  const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(roomLink);
-      setInviteStatus((prev) => ({ ...prev, [targetId]: 'copied' }));
+      setCopyStatus('copied');
       
       // Reset status after 3 seconds
       setTimeout(() => {
-        setInviteStatus((prev) => ({ ...prev, [targetId]: null }));
+        setCopyStatus('');
       }, 3000);
     } catch (err) {
       console.error('Failed to copy:', err);
@@ -134,26 +54,11 @@ export default function FriendsModal({
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      setInviteStatus((prev) => ({ ...prev, [targetId]: 'copied' }));
+      setCopyStatus('copied');
       
       setTimeout(() => {
-        setInviteStatus((prev) => ({ ...prev, [targetId]: null }));
+        setCopyStatus('');
       }, 3000);
-    }
-  };
-
-  const handleSearch = (searchValue) => {
-    setSearchTerm(searchValue);
-  };
-
-  const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const clearSearch = () => {
-    setSearchTerm('');
-    if (inputRef.current) {
-      inputRef.current.value = '';
     }
   };
 
@@ -171,162 +76,92 @@ export default function FriendsModal({
     <div
       data-overlay
       onClick={bgClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     >
-      <div className="w-[931px] h-[591px] rounded-[14px] border-2 border-white bg-[rgba(172,172,172,0.50)] backdrop-blur-[35px] p-8 text-white overflow-hidden">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-semibold">Invite Friends</h2>
-          <button onClick={onClose} className="text-3xl leading-none">&times;</button>
+      <div className="w-[700px] bg-black border border-white/20 rounded-xl shadow-2xl p-8 text-white">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Create Game Room
+          </h2>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-white text-3xl leading-none transition-colors duration-200"
+          >
+            ×
+          </button>
         </div>
 
-        {/* Room Info Section */}
-        <div className="mb-4 p-4 bg-black/30 rounded-lg border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-300">Room Code: <span className="text-lime-300 font-bold">{roomCode}</span></p>
-              <p className="text-xs text-gray-400 break-all">{roomLink}</p>
+        {/* Room Code Section */}
+        <div className="text-center mb-8">
+          <div className="mb-6">
+            <p className="text-xl font-semibold text-gray-300 mb-4">Room Code</p>
+            
+            {/* Room Code Display - matching the sleek card style */}
+            <div className="bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700/50 rounded-xl p-6 mb-6 backdrop-blur-sm">
+              <p className="text-4xl font-bold text-cyan-400 tracking-wider mb-3 font-mono">
+                {roomCode}
+              </p>
+              <p className="text-sm text-gray-400 break-all font-mono">
+                {roomLink}
+              </p>
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4 mb-8">
+            <button
+              onClick={handleCopyLink}
+              className={`
+                px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-300 border
+                ${copyStatus === 'copied'
+                  ? 'bg-green-600/20 border-green-500/50 text-green-400'
+                  : 'bg-blue-600/20 hover:bg-blue-600/30 border-blue-500/50 hover:border-blue-400/70 text-blue-400 hover:text-blue-300'
+                }
+              `}
+            >
+              {copyStatus === 'copied' ? '✓ Link Copied!' : '📋 Copy Invite Link'}
+            </button>
+
             <button
               onClick={joinMyOwnRoom}
-              className="px-4 py-2 bg-lime-300 text-black rounded-md font-medium hover:bg-lime-400 transition-all duration-150"
+              className="px-8 py-3 bg-gradient-to-r from-lime-500/20 to-green-500/20 hover:from-lime-500/30 hover:to-green-500/30 border border-lime-400/50 hover:border-lime-300/70 text-lime-400 hover:text-lime-300 rounded-xl font-semibold text-lg transition-all duration-300"
             >
-              Join Room
+              🎮 Join Room
             </button>
+          </div>
+
+          {/* Instructions Card - matching other pages' style */}
+          <div className="bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/30 rounded-xl p-6">
+            <h3 className="text-lg font-semibold mb-4 text-cyan-400">How to Invite Friends:</h3>
+            <div className="text-left space-y-3 text-gray-300">
+              <div className="flex items-start gap-3">
+                <span className="text-cyan-400 font-bold min-w-[20px]">1.</span>
+                <span>Click "Copy Invite Link" above</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-cyan-400 font-bold min-w-[20px]">2.</span>
+                <span>Send the link to your friends (text, Discord, etc.)</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-cyan-400 font-bold min-w-[20px]">3.</span>
+                <span>Click "Join Room" to enter the game</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-cyan-400 font-bold min-w-[20px]">4.</span>
+                <span>Your friends click the link to join the same room!</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-start gap-4 mb-6">
-          <input
-            ref={inputRef}
-            placeholder="Search by name or email..."
-            value={searchTerm}
-            onChange={handleInputChange}
-            className="w-[300px] px-4 py-2 rounded-md bg-gradient-to-r from-[#EFEFEF] to-white/60 placeholder-gray-500 text-black focus:outline-none focus:ring-2 focus:ring-lime-300"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSearch(e.target.value);
-            }}
-          />
-
+        {/* Close button */}
+        <div className="text-center">
           <button
-            onClick={() => {
-              setClicked(true);
-              handleSearch(inputRef.current?.value || '');
-              setTimeout(() => setClicked(false), 150);
-            }}
-            className={`
-              flex justify-center items-center gap-[15.769px] rounded-[7.168px] px-[14.335px] py-[7.168px] border border-white transition-all duration-150
-              ${clicked
-                ? 'w-[114.686px] bg-[radial-gradient(179.82%_50%_at_50%_50%,_#FFF_0%,_#B8FF01_100%)] text-black'
-                : 'w-[120.3px] text-white'}
-              ${!clicked && 'hover:w-[114.686px] hover:bg-[radial-gradient(179.82%_50%_at_50%_50%,_#FFF_0%,_#B8FF01_100%)] hover:text-black'}
-            `}
+            onClick={onClose}
+            className="px-6 py-2 border border-gray-600/50 hover:border-gray-500/70 rounded-xl text-gray-400 hover:text-gray-300 transition-all duration-200"
           >
-            Search
-          </button>
-
-          {searchTerm && (
-            <button
-              onClick={clearSearch}
-              className="px-3 py-2 rounded-md border border-white/50 text-white hover:bg-white/10 transition-all duration-150"
-              title="Clear search"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-
-        {loading && (
-          <p className="text-center text-xl">Loading users…</p>
-        )}
-
-        {!loading && filteredFriendList.length === 0 && friendList.length > 0 && (
-          <div className="text-center text-gray-300 text-xl">
-            <p>No players found matching "{searchTerm}"</p>
-            <button 
-              onClick={clearSearch}
-              className="mt-2 text-lime-300 hover:text-lime-200 underline"
-            >
-              Clear search to see all players
-            </button>
-          </div>
-        )}
-
-        {!loading && friendList.length === 0 && (
-          <div className="text-center text-gray-300 text-xl">
-            <p>No players found to invite.</p>
-          </div>
-        )}
-
-        {!loading && filteredFriendList.length > 0 && (
-          <div>
-            {searchTerm && (
-              <p className="text-sm text-gray-300 mb-4">
-                Showing {filteredFriendList.length} of {friendList.length} players
-              </p>
-            )}
-            <ul className="space-y-6 overflow-y-auto max-h-[270px] pr-2">
-              {filteredFriendList.map((user, index) => (
-                <li
-                  key={user._id || index}
-                  className="grid grid-cols-[1fr_auto] items-center gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20"
-                >
-                  <div>
-                    <p className="text-lg font-medium">
-                      {user.username || user.name || 'Unknown User'}
-                    </p>
-                    <p className="text-xs text-gray-200">{user.email}</p>
-                  </div>
-                  <button
-                    className={`
-                      px-6 py-2 rounded-md border transition font-medium
-                      ${
-                        inviteStatus[user._id] === 'copied'
-                          ? 'border-green-400 bg-green-400 text-black'
-                          : 'border-lime-300 hover:bg-lime-300 hover:text-black'
-                      }
-                    `}
-                    onClick={() => handleInvite(user._id)}
-                  >
-                    {inviteStatus[user._id] === 'copied'
-                      ? 'Link Copied!'
-                      : 'Invite'}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="flex justify-center gap-2 mt-4">
-          <button
-            disabled={page === 1}
-            className="w-8 h-8 border rounded disabled:opacity-30"
-            onClick={() => onPageChange(page - 1)}
-          >
-            &lt;
-          </button>
-          {Array.from({ length: 5 }, (_, i) => {
-            const pageNum = Math.max(1, Math.min(totalPages - 4, page - 2)) + i;
-            return (
-              pageNum <= totalPages && (
-                <button
-                  key={pageNum}
-                  className={`w-8 h-8 rounded ${
-                    pageNum === page ? 'bg-lime-300 text-black' : 'border border-gray-400'
-                  }`}
-                  onClick={() => onPageChange(pageNum)}
-                >
-                  {pageNum}
-                </button>
-              )
-            );
-          })}
-          <button
-            disabled={page === totalPages}
-            className="w-8 h-8 border rounded disabled:opacity-30"
-            onClick={() => onPageChange(page + 1)}
-          >
-            &gt;
+            Close
           </button>
         </div>
       </div>

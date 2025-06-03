@@ -19,7 +19,6 @@ function AppContent() {
 
   // State for friends modal (lifted up to App level)
   const [showFriendsModal, setShowFriendsModal] = useState(false);
-  const [page, setPage] = useState(1);  
 
   const location = useLocation();
 
@@ -64,13 +63,10 @@ function AppContent() {
           </Routes>
         </main>
         
-        {/* FriendsModal here - appear from any page */}
+        {/* Simplified FriendsModal */}
         <FriendsModal
           open={showFriendsModal}
           onClose={() => setShowFriendsModal(false)}
-          page={page}
-          totalPages={1}
-          onPageChange={(p) => setPage(p)}
         />
       </div>
     </AuthContext.Provider>
