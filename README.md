@@ -54,15 +54,10 @@ Given these motivations, we're excited to build this application because it's te
 - POST /api/games/results - Save game result to db
 
 ### Leaderboard
-- GET /api/leaderboard - Sort and reutnr game results by wpm
+- GET /api/leaderboard - Sort and return game results by wpm
 
 ### Text
-- GET /api/text/getSentence - Returns random text from db for Race
-
-### Users
-- GET /api/users/friends - Returns friends of current user
-- GET /api/users/all - Returns all users
-- POST /api/users/invite/:targetId - Invites other users to race
+- GET /api/text/getSentence - Returns random text from db
 
 ## Database Schemas:
 
