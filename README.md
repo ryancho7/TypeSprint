@@ -47,54 +47,36 @@ Given these motivations, we're excited to build this application because it's te
 ## API Endpoints:
 
 ### Auth
-- POST /api/auth/login - Log in (via Azure), establish session
-- POST /api/auth/logout- Log out and destroy session	
-- GET	/api/auth/me - Get current user’s profile
+- GET	/api/auth/ - Authenticate user
 
-### Text
-- GET	/api/text/random - Return one random text for typing practice
-- GET	/api/text - List all texts in DB for user to choose from
-
-### Matchmaking
-- POST /api/lobbies/join - Join an open lobby or create one; returns lobbyId
-- GET /api/lobbies/:lobbyId	- View lobby status (players joined, isReady flag)
-
-### In Game
-- POST /api/games/:lobbyId/start - Start the race for all players in the lobby
-- GET	/api/games/:gameId - Get game metadata (text, players, start time)
-- POST /api/games/:gameId/finish - Submit finish time, accuracy, wpm, etc for the current user
-- GET	/api/games/:gameId/results - Get final standings and stats for this game
-
-### User Profile
-- GET	/api/users/:userId/history - Get this user's game history (wpm, accuracy, date, etc)
+### Games
+- GET /api/games/results - Return game result
+- POST /api/games/results - Save game result to db
 
 ### Leaderboard
-- GET	/api/leaderboard - Top N all-time fastest races
-- GET	/api/stats/:userId/summary - Stats for user (avg WPM, total races, avg accuracy, etc)
+- GET /api/leaderboard - Sort and reutnr game results by wpm
+
+### Text
+- GET /api/text/getSentence - Returns random text from db for Race
+
+### Users
+- GET /api/users/friends - Returns friends of current user
+- GET /api/users/all - Returns all users
+- POST /api/users/invite/:targetId - Invites other users to race
 
 ## Database Schemas:
 
+### Sentence
+- sentence (String)
+
+### Race History
+- username (String)
+- wpm (Number)
+- finishingPosition (Number)
+- date (Date)
+
 ### User
 - username (String)
-- userId (String)
+- email (String)
+- friends (mongoose objectId reference User)
 
-### Text
-- text (String)
-
-### Lobby
-- players ([ref User])
-- isReady (Boolean)
-- created (Date)
-
-### Game
-- lobby (ref Lobby)
-- text (ref Text)
-- start (Date)
-- end (Date)
-- results (ref Result)
-  
-### Result
-- user (ref User)
-- finishTime (Date)
-- wpm (Number)
-- accuracy (Number)
