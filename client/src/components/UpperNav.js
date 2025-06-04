@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-function UpperNav({ auth, onFriendsClick }) {
+function UpperNav({ auth }) {
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -12,7 +12,6 @@ function UpperNav({ auth, onFriendsClick }) {
         if (pathname === "/dashboard") return "dashboard";
         if (pathname === "/records") return "records";
         if (pathname === "/leaderboard") return "leaderboard";
-        if (pathname === "/friends") return "friends";
         return "";
     })();
 
@@ -20,23 +19,15 @@ function UpperNav({ auth, onFriendsClick }) {
     const [showLoginPopup, setShowLoginPopup] = useState(false);
 
     const getNavItems = () => {
-        const baseItems = [
+        return [
             { id: "dashboard", label: "DASHBOARD", path: "/dashboard" },
             { id: "records", label: "RECORDS", path: "/records" },
             { id: "leaderboard", label: "LEADERBOARD", path: "/leaderboard" },
         ];
-        if (auth.isAuthenticated && !auth.inGuestMode) {
-            baseItems.push({ id: "friends", label: "FRIENDS", path: "/friends" });
-        }
-        return baseItems;
     };
 
     const handleNavClick = (item) => {
-        if (item.id === "friends" && onFriendsClick) {
-            onFriendsClick();
-        } else {
-            navigate(item.path);
-        }
+        navigate(item.path);
     };
 
     if (!auth.isAuthenticated) {

@@ -44,26 +44,27 @@ function AppContent() {
 
   const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
+  const handlePrivateClick = () => {
+    setShowFriendsModal(true);
+  };
+
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>
       <div className="flex flex-col h-screen">
         {shouldShowNavbar && (
-          <UpperNav 
-            auth={auth} 
-            onFriendsClick={() => setShowFriendsModal(true)} 
-          />
+          <UpperNav auth={auth} />
         )}
         <main className="flex flex-col flex-1 overflow-auto bg-black">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} /> 
+            <Route path="/dashboard" element={<Dashboard onPrivateClick={handlePrivateClick} />} /> 
             <Route path="/race" element={<Race />} />
             <Route path="/records" element={<Records />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
         
-        {/* Simplified FriendsModal */}
+        {/* Friends Modal for Private Games */}
         <FriendsModal
           open={showFriendsModal}
           onClose={() => setShowFriendsModal(false)}

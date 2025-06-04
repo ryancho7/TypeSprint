@@ -1,16 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function LowerNav() {
+function LowerNav({ onPrivateClick }) {
     const [mode, setMode] = useState("public");
     const [isHovered, setIsHovered] = useState(false);
     const navigate = useNavigate();
+
+    const handlePrivateClick = () => {
+        setMode("private");
+        if (onPrivateClick) {
+            onPrivateClick(); // Open Friends modal
+        }
+    };
+
+    const handlePublicClick = () => {
+        setMode("public");
+    };
+
+    const handleStartGame = () => {
+        if (mode === "public") {
+            navigate("/race");
+        } else {
+            // For private mode, the modal should already be open
+            // User needs to create/join room from the modal
+        }
+    };
 
     return (
         <div className="absolute left-12 bottom-12 flex flex-col gap-4">
             <div className="flex flex-row gap-[10px] items-center">
                 <button
-                    onClick={() => setMode("public")}
+                    onClick={handlePublicClick}
                     className={`w-[170px] h-[35px] rounded-[10px] px-2 flex items-center justify-center transition
                         ${mode === "public"
                             ? "bg-[#f2f8ff] text-black font-extrabold text-[25px]"
@@ -20,7 +40,7 @@ function LowerNav() {
                     PUBLIC
                 </button>
                 <button
-                    onClick={() => setMode("private")}
+                    onClick={handlePrivateClick}
                     className={`w-[170px] h-[35px] rounded-[10px] px-2 flex items-center justify-center transition
                         ${mode === "private"
                             ? "bg-[#f2f8ff] text-black font-extrabold text-[25px]"
@@ -31,7 +51,7 @@ function LowerNav() {
                 </button>
             </div>
             <button
-                onClick={() => navigate("/race")}
+                onClick={handleStartGame}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className="w-[350px] h-[62px] rounded-[10px] border border-cyan-400 flex items-center justify-center transition-colors duration-150 group overflow-hidden"
