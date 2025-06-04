@@ -43,8 +43,10 @@ export default function FriendsModal({
   };
 
   const handleCopyRoomCode = async () => {
+    const inviteMessage = `🎮 Join my TypeSprint game!\n\nRoom Code: ${roomCode}\nWebsite: http://typesprint.ryancho.me\n\n1. Go to the website\n2. Login or use Guest Mode\n3. Click "PRIVATE" button\n4. Enter the room code above\n5. Let's race! 🏁`;
+    
     try {
-      await navigator.clipboard.writeText(roomCode);
+      await navigator.clipboard.writeText(inviteMessage);
       setCopyStatus('copied');
       
       setTimeout(() => {
@@ -54,7 +56,7 @@ export default function FriendsModal({
       console.error('Failed to copy:', err);
       // Fallback for older browsers
       const textArea = document.createElement('textarea');
-      textArea.value = roomCode;
+      textArea.value = inviteMessage;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
@@ -146,7 +148,7 @@ export default function FriendsModal({
                     }
                   `}
                 >
-                  {copyStatus === 'copied' ? '✓ Room Code Copied!' : '📋 Copy Room Code'}
+                  {copyStatus === 'copied' ? '✓ Invitation Copied!' : '📋 Copy Room Invitation'}
                 </button>
 
                 <button
@@ -160,8 +162,8 @@ export default function FriendsModal({
 
             <div className="bg-gradient-to-r from-gray-900/30 to-gray-800/30 border border-gray-700/20 rounded-lg p-4">
               <p className="text-sm text-gray-300">
-                📤 <strong>Share with friends:</strong> Copy the room code and send it to your friends. 
-                They can enter it on this page to join your game!
+                📤 <strong>Share with friends:</strong> Copy the invitation message and send it to your friends. 
+                It includes the room code and website link for easy access!
               </p>
             </div>
           </div>
