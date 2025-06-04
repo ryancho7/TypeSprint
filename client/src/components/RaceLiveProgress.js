@@ -4,13 +4,11 @@ import Timer from "./RaceTimer.js";
 export default function LiveProgress({ progressMap, myId, textLength, timer }) {
     return (
         <div className="bg-gradient-to-r from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-xl p-6 mb-12">
-            {/* Header: “Live Progress” + timer */}
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-white">Live Progress</h3>
                 <Timer timer={timer} />
             </div>
 
-            {/* Participant list */}
             <div className="space-y-3">
                 {Object.entries(progressMap).map(
                     ([id, { progress, accurateFinish, username }]) => {
