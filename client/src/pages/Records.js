@@ -11,7 +11,7 @@ export default function Records() {
 
         async function getRecords() {
             try {
-                const res = await fetch('http://localhost:3000/api/games/results?username=' + auth.user?.username);
+                const res = await fetch('/api/games/results?username=' + auth.user?.username);
                 const data = await res.json();
                 setRecords(data);
             } catch (error) {

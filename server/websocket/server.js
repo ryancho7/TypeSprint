@@ -5,7 +5,7 @@ import { Server } from 'socket.io';
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: { origin: 'http://localhost:4000', credentials: true }
+    cors: { origin: true, credentials: true }
 });
 
 // simple in-memory game state
@@ -13,7 +13,8 @@ const races = {}; // { raceId: { text, participants: { socketId: progress }, sta
 
 async function fetchRandomSentence() {
     try {
-        const res = await fetch('http://localhost:3000/api/text/getSentence');
+        const baseUrl = process.env.API_BASE_URL || '';
+        const res = await fetch(`${baseUrl}/api/text/getSentence`);
         const data = await res.json();
         return data.sentence;
     } catch (error) {
@@ -24,7 +25,8 @@ async function fetchRandomSentence() {
 
 async function saveRaceResult(username, wpm, finishingPosition) {
     try {
-        await fetch('http://localhost:3000/api/games/results', {
+        const baseUrl = process.env.API_BASE_URL || '';
+        await fetch(`${baseUrl}/api/games/results`, {
             method: "POST",
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -225,5 +227,5 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`listening on ${PORT}`));
