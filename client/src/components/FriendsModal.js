@@ -79,7 +79,6 @@ export default function FriendsModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     >
       <div className="w-[700px] bg-black border border-white/20 rounded-xl shadow-2xl p-8 text-white">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             Create Game Room
@@ -92,12 +91,10 @@ export default function FriendsModal({
           </button>
         </div>
 
-        {/* Room Code Section */}
         <div className="text-center mb-8">
           <div className="mb-6">
             <p className="text-xl font-semibold text-gray-300 mb-4">Room Code</p>
             
-            {/* Room Code Display - matching the sleek card style */}
             <div className="bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700/50 rounded-xl p-6 mb-6 backdrop-blur-sm">
               <p className="text-4xl font-bold text-cyan-400 tracking-wider mb-3 font-mono">
                 {roomCode}
@@ -108,7 +105,6 @@ export default function FriendsModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-center gap-4 mb-8">
             <button
               onClick={handleCopyLink}
@@ -131,7 +127,6 @@ export default function FriendsModal({
             </button>
           </div>
 
-          {/* Instructions Card - matching other pages' style */}
           <div className="bg-gradient-to-r from-gray-900/50 to-gray-800/50 border border-gray-700/30 rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4 text-cyan-400">How to Invite Friends:</h3>
             <div className="text-left space-y-3 text-gray-300">
@@ -155,7 +150,6 @@ export default function FriendsModal({
           </div>
         </div>
 
-        {/* Close button */}
         <div className="text-center">
           <button
             onClick={onClose}

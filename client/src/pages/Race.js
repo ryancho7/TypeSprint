@@ -47,7 +47,7 @@ export default function Race() {
         if (!auth.isAuthenticated) return;
 
         // Connect
-        const s = io('http://localhost:3000', {
+        const s = io({
             withCredentials: true
         });
         setSocket(s);
@@ -171,7 +171,6 @@ export default function Race() {
                     Type Sprint
                 </h1>
                 
-                {/* URL room information added */}
                 {roomFromUrl && (
                     <div className="text-center mb-6">
                         <div className="inline-block bg-lime-300/20 border border-lime-300/30 rounded-lg px-4 py-2">
