@@ -110,7 +110,6 @@ export default function FriendsModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     >
       <div className="w-[800px] bg-black border border-white/20 rounded-xl shadow-2xl p-8 text-white">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
             Private Game Room
@@ -124,13 +123,11 @@ export default function FriendsModal({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Create Room Section */}
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-cyan-400 border-b border-cyan-400/30 pb-2">
               Create New Room
             </h3>
             
-            {/* Room Code Display */}
             <div className="bg-gradient-to-r from-gray-900/80 to-gray-800/80 border border-gray-700/50 rounded-xl p-6 backdrop-blur-sm">
               <p className="text-sm text-gray-400 mb-2">Your Room Code:</p>
               <p className="text-3xl font-bold text-cyan-400 tracking-wider mb-4 font-mono">
@@ -168,7 +165,6 @@ export default function FriendsModal({
             </div>
           </div>
 
-          {/* Join Room Section */}
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-purple-400 border-b border-purple-400/30 pb-2">
               Join Friend's Room
@@ -210,7 +206,6 @@ export default function FriendsModal({
           </div>
         </div>
 
-        {/* Close button */}
         <div className="text-center mt-8">
           <button
             onClick={onClose}
